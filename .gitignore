@@ -1,0 +1,32 @@
+# Android Build
+/build
+/*/build
+*.iml
+.gradle
+
+# Local Configuration
+local.properties
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deploymentTargetSelector.xml
+.idea/planningMode.xml
+.idea/migrations.xml
+.idea/markdown.xml
+.idea/runConfigurations.xml
+
+# System Files
+.DS_Store
+captures/
+.externalNativeBuild
+.cxx
+
+# Project specific
+.artifacts/
+.aiexclude
+
+# Log files
+*.log

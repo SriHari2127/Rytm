@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/habitsFragment"
+        android:icon="@drawable/ic_habits"
+        android:title="Habits"/>
+
+    <item
+        android:id="@+id/waterReminderFragment"
+        android:icon="@drawable/ic_water"
+        android:title="Water"/>
+
+    <item
+        android:id="@+id/analyticsFragment"
+        android:icon="@drawable/ic_analytics"
+        android:title="Analytics"/>
+
+</menu>

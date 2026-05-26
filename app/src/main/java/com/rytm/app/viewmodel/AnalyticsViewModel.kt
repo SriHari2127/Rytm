@@ -1,0 +1,161 @@
+package com.rytm.app.viewmodel
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rytm.app.data.entity.CompletionLog
+import com.rytm.app.data.entity.CompletionStatus
+import com.rytm.app.data.entity.Habit
+import com.rytm.app.repository.HabitRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import java.util.Calendar
+import javax.inject.Inject
+
+data class HabitStats(
+    val habit: Habit,
+    val totalCompleted: Int,
+    val weeklyRate: Float,   // 0.0 - 1.0
+    val currentStreak: Int,
+    val longestStreak: Int
+)
+
+data class AnalyticsState(
+    val habitStats: List<HabitStats> = emptyList(),
+    val recentLogs: List<CompletionLog> = emptyList(),
+    val weeklyCompletionByDay: Map<Int, Int> = emptyMap(), // dayOfWeek -> count
+    val overallWeeklyRate: Float = 0f,
+    val completionsThisMonth: Int = 0,
+    val completionsLastMonth: Int = 0
+)
+
+@HiltViewModel
+class AnalyticsViewModel @Inject constructor(
+    private val repository: HabitRepository
+) : ViewModel() {
+
+    val state: StateFlow<AnalyticsState> = combine(
+        repository.getAllActiveHabits(),
+        repository.getAllLogs()
+    ) { habits, allHistory ->
+        calculateAnalytics(habits, allHistory)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), AnalyticsState())
+
+    private fun calculateAnalytics(habits: List<Habit>, allHistory: List<CompletionLog>): AnalyticsState {
+        val now = System.currentTimeMillis()
+        val sevenDaysAgo = now - 7L * 24 * 60 * 60 * 1000
+        val thirtyDaysAgo = now - 30L * 24 * 60 * 60 * 1000
+
+        val recentLogs = allHistory.sortedByDescending { it.completedAt }.take(50)
+
+        // Monthly Summary
+        val thisMonthStart = Calendar.getInstance().apply {
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val lastMonthStart = Calendar.getInstance().apply {
+            add(Calendar.MONTH, -1)
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        val lastMonthCount = allHistory.count {
+            it.status == CompletionStatus.COMPLETED &&
+                    it.completedAt >= lastMonthStart &&
+                    it.completedAt < thisMonthStart
+        }
+        val thisMonthCountFull = allHistory.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= thisMonthStart }
+
+        // Weekly by day
+        val weeklyMap = mutableMapOf<Int, Int>()
+        allHistory.filter {
+            it.status == CompletionStatus.COMPLETED && it.completedAt >= sevenDaysAgo
+        }.forEach { log ->
+            val cal = Calendar.getInstance().apply { timeInMillis = log.completedAt }
+            val day = cal.get(Calendar.DAY_OF_WEEK)
+            weeklyMap[day] = (weeklyMap[day] ?: 0) + 1
+        }
+
+        // Per-habit stats
+        val habitStats = habits.map { habit ->
+            val logsForHabit = allHistory.filter { it.habitId == habit.id && it.completedAt >= thirtyDaysAgo }
+            val completed = logsForHabit.count { it.status == CompletionStatus.COMPLETED }
+            val weeklyLogs = logsForHabit.filter { it.completedAt >= sevenDaysAgo }
+            val weeklyRate = if (weeklyLogs.isEmpty()) 0f
+            else weeklyLogs.count { it.status == CompletionStatus.COMPLETED }.toFloat() / 7f
+
+            val streak = calculateStreak(allHistory.filter { it.habitId == habit.id })
+            val longest = calculateLongestStreak(allHistory.filter { it.habitId == habit.id })
+
+            HabitStats(habit, completed, weeklyRate.coerceIn(0f, 1f), streak, longest)
+        }
+
+        val overallRate = if (habitStats.isEmpty()) 0f
+        else habitStats.map { it.weeklyRate }.average().toFloat()
+
+        return AnalyticsState(
+            habitStats = habitStats,
+            recentLogs = recentLogs,
+            weeklyCompletionByDay = weeklyMap,
+            overallWeeklyRate = overallRate,
+            completionsThisMonth = thisMonthCountFull,
+            completionsLastMonth = lastMonthCount
+        )
+    }
+
+    private fun calculateStreak(logs: List<CompletionLog>): Int {
+        if (logs.isEmpty()) return 0
+        val completed = logs.filter { it.status == CompletionStatus.COMPLETED }
+            .sortedByDescending { it.completedAt }
+        if (completed.isEmpty()) return 0
+
+        var streak = 0
+        var expectedDay = Calendar.getInstance()
+        expectedDay.set(Calendar.HOUR_OF_DAY, 0)
+        expectedDay.set(Calendar.MINUTE, 0)
+        expectedDay.set(Calendar.SECOND, 0)
+        expectedDay.set(Calendar.MILLISECOND, 0)
+
+        val days = completed.map {
+            val c = Calendar.getInstance().apply { timeInMillis = it.completedAt }
+            c.set(Calendar.HOUR_OF_DAY, 0); c.set(Calendar.MINUTE, 0)
+            c.set(Calendar.SECOND, 0); c.set(Calendar.MILLISECOND, 0)
+            c.timeInMillis
+        }.distinct().sortedDescending()
+
+        for (day in days) {
+            if (day >= expectedDay.timeInMillis) {
+                streak++
+                expectedDay.add(Calendar.DAY_OF_YEAR, -1)
+            } else break
+        }
+        return streak
+    }
+
+    private fun calculateLongestStreak(logs: List<CompletionLog>): Int {
+        val days = logs.filter { it.status == CompletionStatus.COMPLETED }.map {
+            val c = Calendar.getInstance().apply { timeInMillis = it.completedAt }
+            c.set(Calendar.HOUR_OF_DAY, 0); c.set(Calendar.MINUTE, 0)
+            c.set(Calendar.SECOND, 0); c.set(Calendar.MILLISECOND, 0)
+            c.timeInMillis
+        }.distinct().sorted()
+
+        if (days.isEmpty()) return 0
+        var longest = 1; var current = 1
+        val dayMs = 24 * 60 * 60 * 1000L
+        for (i in 1 until days.size) {
+            current = if (days[i] - days[i - 1] == dayMs) current + 1 else 1
+            if (current > longest) longest = current
+        }
+        return longest
+    }
+}

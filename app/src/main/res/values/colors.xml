@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Modern & Premium Palette -->
+    <color name="primary">#0F172A</color>
+    <color name="primary_container">#1E293B</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#0F172A</color>
+    <color name="on_surface_variant">#64748B</color>
+
+    <color name="accent">#8B5CF6</color>
+    <color name="accent_container">#DDD6FE</color>
+    <color name="on_accent">#FFFFFF</color>
+
+    <color name="error">#EF4444</color>
+    <color name="on_error">#FFFFFF</color>
+
+    <!-- Legacy compatibility -->
+    <color name="purple_200">#8B5CF6</color>
+    <color name="purple_500">#0F172A</color>
+    <color name="purple_700">#020617</color>
+    <color name="teal_200">#8B5CF6</color>
+    <color name="teal_700">#6D28D9</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="red_500">#EF4444</color>
+    <color name="alarm_bg">#0F172A</color>
+</resources>

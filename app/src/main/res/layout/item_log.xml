@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/tv_log_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✅ Completed"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:minWidth="120dp"/>
+
+    <TextView
+        android:id="@+id/tv_log_time"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Mon, Jan 1  8:00 AM"
+        android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:gravity="end"/>
+
+</LinearLayout>
