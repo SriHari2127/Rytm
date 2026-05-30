@@ -96,6 +96,7 @@
         <service
             android:name=".service.AlarmService"
             android:exported="false"
+            android:label=" "
             android:foregroundServiceType="mediaPlayback" />
 
     </application>

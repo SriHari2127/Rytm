@@ -53,6 +53,12 @@ class AlarmService : Service() {
             return START_NOT_STICKY
         }
 
+        if (intent.action == ACTION_STOP_ALARM) {
+            Log.d("RytmAlarm", "Service: Stop action received")
+            stopAlarm()
+            return START_NOT_STICKY
+        }
+
         // Clean up any existing alarm state before starting a new one
         cleanupServiceState()
         acquireWakeLock()
@@ -185,14 +191,25 @@ class AlarmService : Service() {
             AlarmScheduler.NOTIFICATION_CHANNEL_ID
         }
 
+        val stopIntent = Intent(this, AlarmService::class.java).apply {
+            action = ACTION_STOP_ALARM
+        }
+        val stopPi = PendingIntent.getService(
+            this, habitId.toInt() + 100, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("$habitEmoji Time for $habitName")
-            .setContentText(null)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setFullScreenIntent(pi, true)
             .setContentIntent(pi)
+            .setDeleteIntent(stopPi)
+            .addAction(0, "Dismiss", stopPi)
+            .setColor(android.graphics.Color.BLACK)
+            .setColorized(true)
             .apply {
                 if (type == AlarmScheduler.TYPE_HABIT) {
                     setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
@@ -278,6 +295,12 @@ class AlarmService : Service() {
         stopSelf()
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        Log.d("RytmAlarm", "Task removed, stopping alarm")
+        stopAlarm()
+        super.onTaskRemoved(rootIntent)
+    }
+
     override fun onDestroy() {
         Log.d("RytmAlarm", "Service destroyed")
         super.onDestroy()
@@ -292,5 +315,6 @@ class AlarmService : Service() {
 
     companion object {
         const val FOREGROUND_ID = 1001
+        const val ACTION_STOP_ALARM = "com.rytm.app.action.STOP_ALARM"
     }
 }

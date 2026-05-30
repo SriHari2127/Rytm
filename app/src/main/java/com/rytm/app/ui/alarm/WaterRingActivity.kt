@@ -123,6 +123,9 @@ class WaterRingActivity : AppCompatActivity() {
         val rotate = AnimationUtils.loadAnimation(this, R.anim.premium_rotate)
         binding.ivWaterRingBg.startAnimation(rotate)
 
+        val rotateSlow = AnimationUtils.loadAnimation(this, R.anim.premium_rotate_slow)
+        binding.ivWaterRingOuter.startAnimation(rotateSlow)
+
         val slideIn = AnimationUtils.loadAnimation(this, R.anim.slide_up_fade)
         binding.motivationContainer.startAnimation(slideIn)
         binding.waterStatsCard.startAnimation(slideIn)

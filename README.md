@@ -42,6 +42,7 @@ The project implements **Clean Architecture** principles with a focus on the **M
 
 - **Battery Optimization (Lazy Scheduling)**: Implemented a smart scheduling engine that stores the last set time in Room. The app skips redundant system calls if the trigger time hasn't changed, significantly reducing CPU wakeups and preserving battery.
 - **The Sleep-Wake Problem**: Implemented `setExactAndAllowWhileIdle` with `Full-Screen Intents` to ensure alarms trigger and display even when the device is in Deep Sleep or locked.
+- **Refined Notification UX**: Optimized notification strings to eliminate redundancy. Titles follow a clean `[Emoji] Time for [Name]` format, and body text was removed to focus on the full-screen prompt, reducing cognitive load.
 - **Timezone/DST Drift**: Developed a `TimeChangeReceiver` that listens for `ACTION_TIMEZONE_CHANGED`, instantly recalculating UTC trigger times to keep reminders synced globally.
 - **Notification Recovery**: Created a startup "Time Audit" logic that detects missed scheduled windows while the device was powered off, triggering a summary notification to the user.
 - **Data Race Conditions**: Hardened the database layer with `@Transaction` annotations in DAOs, ensuring multi-step updates are atomic and corruption-proof.

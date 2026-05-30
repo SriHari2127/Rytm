@@ -9,8 +9,10 @@ import com.rytm.app.data.entity.CompletionStatus
 import com.rytm.app.data.entity.Habit
 import com.rytm.app.repository.HabitRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -125,7 +127,9 @@ class AnalyticsViewModel @Inject constructor(
             try {
                 val backup = Gson().fromJson(json, AppBackup::class.java)
                 if (backup != null) {
-                    repository.restoreFromBackup(backup)
+                    withContext(Dispatchers.IO) {
+                        repository.restoreFromBackup(backup)
+                    }
                     _events.emit("Data restored successfully!")
                 } else {
                     _events.emit("Error: Invalid backup file.")
