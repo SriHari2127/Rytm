@@ -10,6 +10,9 @@ interface WaterReminderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertReminder(reminder: WaterReminder): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertReminders(reminders: List<WaterReminder>)
+
     @Update
     suspend fun updateReminder(reminder: WaterReminder)
 

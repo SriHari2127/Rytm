@@ -32,12 +32,10 @@ class SplashActivity : AppCompatActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Show a random motivational quote
         binding.tvQuote.text = quotes.random()
 
-        // Transition to MainActivity after a short delay
         lifecycleScope.launch {
-            delay(2500) // 2.5 seconds
+            delay(2500)
             startActivity(Intent(this@SplashActivity, MainActivity::class.java))
             finish()
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)

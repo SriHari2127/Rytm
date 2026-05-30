@@ -11,6 +11,9 @@ interface HabitDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHabit(habit: Habit): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertHabits(habits: List<Habit>)
+
     @Update
     suspend fun updateHabit(habit: Habit)
 
@@ -22,6 +25,9 @@ interface HabitDao {
 
     @Query("SELECT * FROM habits ORDER BY createdAt DESC")
     fun getAllHabits(): Flow<List<Habit>>
+
+    @Query("SELECT * FROM habits ORDER BY createdAt DESC")
+    suspend fun getAllHabitsOnce(): List<Habit>
 
     @Query("SELECT * FROM habits WHERE id = :habitId")
     suspend fun getHabitById(habitId: Long): Habit?

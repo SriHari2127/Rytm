@@ -16,11 +16,17 @@ interface WaterLogDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertIfMissing(log: WaterLog): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLogs(logs: List<WaterLog>)
+
     @Query("UPDATE water_logs SET count = :count WHERE date = :date")
     suspend fun updateCount(date: String, count: Int)
 
     @Query("UPDATE water_logs SET goal = :goal WHERE date = :date")
     suspend fun updateGoal(date: String, goal: Int)
+
+    @Query("SELECT * FROM water_logs")
+    suspend fun getAllLogsOnce(): List<WaterLog>
 
     @Query("SELECT goal FROM water_logs ORDER BY date DESC LIMIT 1")
     suspend fun getLastGoal(): Int?

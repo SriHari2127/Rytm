@@ -15,6 +15,12 @@ interface AppSettingsDao {
     @Query("SELECT * FROM app_settings WHERE `key` = :key")
     fun getSetting(key: String): Flow<AppSettings?>
 
+    @Query("SELECT * FROM app_settings")
+    suspend fun getAllSettingsOnce(): List<AppSettings>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveSetting(setting: AppSettings)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSettings(settings: List<AppSettings>)
 }

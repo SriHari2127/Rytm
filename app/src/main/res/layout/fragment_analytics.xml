@@ -240,10 +240,40 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"/>
 
+            <!-- Backup & Restore Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="32dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_export"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Export Data"
+                    app:icon="@drawable/ic_notification"
+                    android:paddingVertical="12dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_import"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Import Data"
+                    app:icon="@drawable/ic_add"
+                    android:paddingVertical="12dp"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
             <!-- Spacer for bottom nav -->
             <View
                 android:layout_width="match_parent"
-                android:layout_height="100dp"/>
+                android:layout_height="120dp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

@@ -11,6 +11,9 @@ interface CompletionLogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: CompletionLog): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLogs(logs: List<CompletionLog>)
+
     @Query("SELECT * FROM completion_logs WHERE habitId = :habitId ORDER BY completedAt DESC")
     fun getLogsForHabit(habitId: Long): Flow<List<CompletionLog>>
 
@@ -47,6 +50,9 @@ interface CompletionLogDao {
 
     @Query("SELECT * FROM completion_logs ORDER BY completedAt DESC")
     fun getAllLogs(): Flow<List<CompletionLog>>
+
+    @Query("SELECT * FROM completion_logs ORDER BY completedAt DESC")
+    suspend fun getAllLogsOnce(): List<CompletionLog>
 
     @Query("""
         SELECT * FROM completion_logs 

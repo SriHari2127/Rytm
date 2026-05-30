@@ -44,27 +44,29 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
-                    android:id="@+id/iv_neon_ring_bg"
+                    android:id="@+id/iv_water_ring_bg"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerInside"
                     android:src="@drawable/neon_ring_premium"
-                    android:alpha="0.4" />
+                    android:alpha="0.3"
+                    app:tint="@color/neon_blue"/>
 
                 <ImageView
-                    android:id="@+id/iv_neon_ring"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerInside"
-                    android:src="@drawable/neon_ring_premium" />
-
-                <ImageView
-                    android:id="@+id/iv_habit_icon"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:id="@+id/iv_water_ring"
+                    android:layout_width="220dp"
+                    android:layout_height="220dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/ic_focus"
-                    app:tint="@color/white"/>
+                    android:scaleType="centerInside"
+                    android:src="@drawable/neon_ring_premium"
+                    app:tint="@color/neon_blue" />
+
+                <ImageView
+                    android:id="@+id/iv_water_icon"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_water_drop_premium"/>
             </FrameLayout>
 
             <!-- Motivation Text -->
@@ -81,7 +83,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="TIME FOR YOUR HABIT"
+                    android:text="TIME TO HYDRATE"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
                     android:letterSpacing="0.2"/>
@@ -90,17 +92,17 @@
                     android:id="@+id/tv_main_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Stay Consistent"
+                    android:text="Drink Water"
                     android:textColor="@color/white"
                     android:textSize="36sp"
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"/>
 
                 <TextView
-                    android:id="@+id/tv_habit_name_sub"
+                    android:id="@+id/tv_water_amount_sub"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Small actions, big future."
+                    android:text="Stay fresh, stay focused."
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:layout_marginTop="2dp"/>
@@ -108,76 +110,59 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="You've got this! 💪"
+                    android:text="Your body will thank you! 💧"
                     android:textColor="@color/neon_blue"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:layout_marginTop="4dp"/>
             </LinearLayout>
 
-            <!-- Streak Pill -->
-            <LinearLayout
-                android:id="@+id/streak_pill"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="8dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_glass_pill"
-                app:layout_constraintTop_toBottomOf="@id/motivation_container"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <ImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:src="@drawable/ic_fire"
-                    app:tint="@color/neon_orange"/>
-
-                <TextView
-                    android:id="@+id/tv_streak_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0 day streak"
-                    android:textColor="@color/white"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginStart="8dp"/>
-
-                <View
-                    android:layout_width="1dp"
-                    android:layout_height="12dp"
-                    android:background="@color/glass_border"
-                    android:layout_marginHorizontal="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Keep it going!"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"/>
-            </LinearLayout>
-
-            <!-- Progress Card -->
+            <!-- Water Stats Card -->
             <FrameLayout
-                android:id="@+id/progress_card"
+                android:id="@+id/water_stats_card"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="32dp"
                 android:background="@drawable/bg_glass_card"
-                app:layout_constraintTop_toBottomOf="@id/streak_pill">
+                app:layout_constraintTop_toBottomOf="@id/motivation_container">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:baselineAligned="false">
 
-                    <!-- Today -->
+                    <!-- Remaining ML -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_water_drop_premium" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="REMAINING"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="8sp"
+                            android:layout_marginTop="4dp"/>
+                        <TextView
+                            android:id="@+id/tv_water_stat_remaining"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1500ml"
+                            android:textColor="@color/neon_blue"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+                    </LinearLayout>
+
+                    <!-- Glasses Done -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -192,21 +177,21 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="TODAY"
+                            android:text="GLASSES"
                             android:textColor="@color/text_secondary"
                             android:textSize="8sp"
                             android:layout_marginTop="4dp"/>
                         <TextView
-                            android:id="@+id/tv_stat_today"
+                            android:id="@+id/tv_water_stat_glasses"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0/0"
+                            android:text="3 done"
                             android:textColor="@color/neon_green"
                             android:textSize="14sp"
                             android:textStyle="bold"/>
                     </LinearLayout>
 
-                    <!-- Weekly -->
+                    <!-- Hydration Level -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -217,78 +202,20 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_trending_up"
-                            app:tint="@color/neon_blue"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="WEEKLY"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="8sp"
-                            android:layout_marginTop="4dp"/>
-                        <TextView
-                            android:id="@+id/tv_stat_weekly"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/neon_blue"
-                            android:textSize="14sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <!-- Monthly -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_target"
                             app:tint="@color/neon_purple"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="THIS MONTH"
+                            android:text="GOAL %"
                             android:textColor="@color/text_secondary"
                             android:textSize="8sp"
                             android:layout_marginTop="4dp"/>
                         <TextView
-                            android:id="@+id/tv_stat_monthly"
+                            android:id="@+id/tv_water_stat_percent"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0"
+                            android:text="45%"
                             android:textColor="@color/neon_purple"
-                            android:textSize="14sp"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <!-- Best -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_trophy"
-                            app:tint="@color/neon_orange"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="BEST STREAK"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="8sp"
-                            android:layout_marginTop="4dp"/>
-                        <TextView
-                            android:id="@+id/tv_stat_best"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textColor="@color/neon_orange"
                             android:textSize="14sp"
                             android:textStyle="bold"/>
                     </LinearLayout>
@@ -302,8 +229,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/progress_card">
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/water_stats_card">
 
                 <!-- Done -->
                 <FrameLayout
@@ -317,7 +244,6 @@
                         android:layout_height="match_parent">
 
                         <ImageView
-                            android:id="@+id/iv_done"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
@@ -334,14 +260,14 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Mark as Done"
+                                android:text="Log as Drunk"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
                                 android:textSize="16sp"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Great job! Keep building."
+                                android:text="Great job! Stay hydrated."
                                 android:textColor="#CCFFFFFF"
                                 android:textSize="11sp"/>
                         </LinearLayout>
@@ -361,7 +287,6 @@
                         android:layout_height="match_parent">
 
                         <ImageView
-                            android:id="@+id/iv_skip"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
@@ -378,15 +303,15 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Skip for Today"
+                                android:text="Skip this One"
                                 android:textColor="@color/white"
                                 android:textStyle="bold"
                                 android:textSize="16sp"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Rest today. Resume tomorrow."
-                                android:textColor="#80FFFFFF"
+                                android:text="I'll catch you on the next glass."
+                                android:textColor="#CCFFFFFF"
                                 android:textSize="11sp"/>
                         </LinearLayout>
                     </RelativeLayout>
@@ -398,7 +323,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
                     android:layout_marginHorizontal="24dp"
-                    android:text="“ Discipline is the bridge between goals and accomplishment. ”"
+                    android:text="“ Pure water is the world's first and foremost medicine. ”"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
                     android:gravity="center"

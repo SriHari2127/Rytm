@@ -1,10 +1,13 @@
 ﻿package com.rytm.app.ui.analytics
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,7 +21,10 @@ import com.rytm.app.databinding.FragmentAnalyticsBinding
 import com.rytm.app.viewmodel.AnalyticsState
 import com.rytm.app.viewmodel.AnalyticsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,6 +35,14 @@ class AnalyticsFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: AnalyticsViewModel by viewModels()
     private lateinit var logsAdapter: RecentLogsAdapter
+
+    private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        uri?.let { saveBackupToFile(it) }
+    }
+
+    private val importLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        uri?.let { loadBackupFromFile(it) }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -44,17 +58,59 @@ class AnalyticsFragment : Fragment() {
         binding.recyclerRecentLogs.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerRecentLogs.adapter = logsAdapter
 
+        binding.btnExport.setOnClickListener {
+            val date = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+            exportLauncher.launch("rytm_backup_$date.json")
+        }
+
+        binding.btnImport.setOnClickListener {
+            importLauncher.launch(arrayOf("application/json"))
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state ->
-                    updateOverallStats(state)
-                    updateWeeklyBarChart(state)
-                    updateHabitStatsCards(state)
-                    logsAdapter.submitList(state.recentLogs)
+                launch {
+                    viewModel.state.collect { state ->
+                        updateOverallStats(state)
+                        updateWeeklyBarChart(state)
+                        updateHabitStatsCards(state)
+                        logsAdapter.submitList(state.recentLogs)
+                    }
+                }
+                launch {
+                    viewModel.events.collect { message ->
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
+
+    private fun saveBackupToFile(uri: Uri) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val json = viewModel.getBackupJson()
+                requireContext().contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(json.toByteArray())
+                }
+                Toast.makeText(requireContext(), "Backup saved successfully!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Export failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun loadBackupFromFile(uri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val json = reader.readText()
+            viewModel.restoreFromJson(json)
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "Import failed: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     private fun updateOverallStats(state: AnalyticsState) {
         val pct = (state.overallWeeklyRate * 100).toInt()

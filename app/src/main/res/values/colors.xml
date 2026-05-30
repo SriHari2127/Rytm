@@ -27,4 +27,16 @@
     <color name="white">#FFFFFF</color>
     <color name="red_500">#EF4444</color>
     <color name="alarm_bg">#0F172A</color>
+
+    <!-- Redesign: Futuristic & Neon -->
+    <color name="deep_dark">#020617</color>
+    <color name="glass_dark">#260F172A</color>
+    <color name="glass_border">#26FFFFFF</color>
+    <color name="neon_blue">#00E5FF</color>
+    <color name="neon_orange">#FF9100</color>
+    <color name="neon_purple">#D500F9</color>
+    <color name="neon_green">#00E676</color>
+    <color name="neon_green_glow">#4D00E676</color>
+    <color name="neon_orange_glow">#4DFF9100</color>
+    <color name="text_secondary">#94A3B8</color>
 </resources>

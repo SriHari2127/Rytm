@@ -2,15 +2,15 @@ package com.rytm.app.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.rytm.app.data.entity.AppBackup
 import com.rytm.app.data.entity.CompletionLog
 import com.rytm.app.data.entity.CompletionStatus
 import com.rytm.app.data.entity.Habit
 import com.rytm.app.repository.HabitRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -35,6 +35,9 @@ data class AnalyticsState(
 class AnalyticsViewModel @Inject constructor(
     private val repository: HabitRepository
 ) : ViewModel() {
+
+    private val _events = MutableSharedFlow<String>()
+    val events: SharedFlow<String> = _events.asSharedFlow()
 
     val state: StateFlow<AnalyticsState> = combine(
         repository.getAllActiveHabits(),
@@ -110,6 +113,27 @@ class AnalyticsViewModel @Inject constructor(
             completionsThisMonth = thisMonthCountFull,
             completionsLastMonth = lastMonthCount
         )
+    }
+
+    suspend fun getBackupJson(): String {
+        val backup = repository.getEntireBackup()
+        return Gson().toJson(backup)
+    }
+
+    fun restoreFromJson(json: String) {
+        viewModelScope.launch {
+            try {
+                val backup = Gson().fromJson(json, AppBackup::class.java)
+                if (backup != null) {
+                    repository.restoreFromBackup(backup)
+                    _events.emit("Data restored successfully!")
+                } else {
+                    _events.emit("Error: Invalid backup file.")
+                }
+            } catch (e: Exception) {
+                _events.emit("Error: ${e.localizedMessage}")
+            }
+        }
     }
 
     private fun calculateStreak(logs: List<CompletionLog>): Int {

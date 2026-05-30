@@ -1,9 +1,6 @@
 ﻿package com.rytm.app.data.database
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.rytm.app.data.dao.AppSettingsDao
 import com.rytm.app.data.dao.CompletionLogDao
 import com.rytm.app.data.dao.HabitDao
@@ -33,5 +30,17 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun waterReminderDao(): WaterReminderDao
     abstract fun waterLogDao(): WaterLogDao
     abstract fun appSettingsDao(): AppSettingsDao
+
+    @Transaction
+    suspend fun restoreFromBackup(backup: AppBackup) {
+        clearAllTables() // Native Room method to safely wipe everything
+        
+        habitDao().insertHabits(backup.habits)
+        reminderDao().insertReminders(backup.reminders)
+        completionLogDao().insertLogs(backup.completionLogs)
+        waterReminderDao().insertReminders(backup.waterReminders)
+        waterLogDao().insertLogs(backup.waterLogs)
+        appSettingsDao().insertSettings(backup.settings)
+    }
 }
 

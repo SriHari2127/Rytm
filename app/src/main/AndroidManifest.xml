@@ -42,6 +42,16 @@
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Water Ring Activity -->
+        <activity
+            android:name=".ui.alarm.WaterRingActivity"
+            android:exported="false"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:windowSoftInputMode="adjustPan" />
+
         <!-- Alarm Ring Activity — shows over lock screen -->
         <activity
             android:name=".ui.alarm.AlarmRingActivity"
@@ -50,7 +60,6 @@
             android:turnScreenOn="true"
             android:excludeFromRecents="true"
             android:taskAffinity=""
-            android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustPan" />
 
         <!-- Boot Receiver — reschedules alarms after reboot -->

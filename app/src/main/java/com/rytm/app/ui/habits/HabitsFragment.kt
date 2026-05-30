@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -51,7 +52,12 @@ class HabitsFragment : Fragment() {
                     .setNegativeButton("Cancel", null)
                     .show()
             },
-            onToggleActive = { hwr -> viewModel.toggleHabitActive(hwr) },
+            onToggleActive = { hwr -> 
+                val newState = !hwr.habit.isActive
+                val message = if (newState) "${hwr.habit.name} reminder ON" else "${hwr.habit.name} reminder OFF"
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                viewModel.toggleHabitActive(hwr) 
+            },
             onMarkDoneClick = { hwr -> viewModel.logManualCompletion(hwr.habit.id) }
         )
 

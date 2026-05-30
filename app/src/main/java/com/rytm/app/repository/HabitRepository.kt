@@ -1,6 +1,7 @@
 package com.rytm.app.repository
 
 import com.rytm.app.data.dao.*
+import com.rytm.app.data.database.AppDatabase
 import com.rytm.app.data.entity.*
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -8,6 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class HabitRepository @Inject constructor(
+    private val db: AppDatabase,
     private val habitDao: HabitDao,
     private val reminderDao: ReminderDao,
     private val waterReminderDao: WaterReminderDao,
@@ -76,6 +78,8 @@ class HabitRepository @Inject constructor(
     suspend fun updateWaterReminder(reminder: WaterReminder) = waterReminderDao.updateReminder(reminder)
 
     suspend fun deleteWaterReminder(reminder: WaterReminder) = waterReminderDao.deleteReminder(reminder)
+
+    suspend fun getWaterReminderById(id: Long): WaterReminder? = waterReminderDao.getReminderById(id)
 
     suspend fun updateWaterReminderLastScheduledAt(reminderId: Long, timestamp: Long) =
         waterReminderDao.updateLastScheduledAt(reminderId, timestamp)
@@ -178,5 +182,22 @@ class HabitRepository @Inject constructor(
 
     suspend fun saveSetting(key: String, value: String) {
         appSettingsDao.saveSetting(AppSettings(key, value))
+    }
+
+    // --- Backup & Restore -------------------------------------------------------
+
+    suspend fun getEntireBackup(): AppBackup {
+        return AppBackup(
+            habits = habitDao.getAllHabitsOnce(),
+            reminders = reminderDao.getAllRemindersOnce(),
+            completionLogs = completionLogDao.getAllLogsOnce(),
+            waterReminders = waterReminderDao.getAllRemindersOnce(),
+            waterLogs = waterLogDao.getAllLogsOnce(),
+            settings = appSettingsDao.getAllSettingsOnce()
+        )
+    }
+
+    suspend fun restoreFromBackup(backup: AppBackup) {
+        db.restoreFromBackup(backup)
     }
 }

@@ -32,11 +32,7 @@ class AlarmScheduler @Inject constructor(
 
         val triggerTime = nextAlarmTime(reminder)
         
-        // Lazy Rescheduling: skip if already scheduled for this exact time
-        if (reminder.lastScheduledAt == triggerTime) return
-
         val intent = buildAlarmIntent(habit, reminder, triggerTime)
-        // Deduplication: using FLAG_UPDATE_CURRENT with unique reminder ID replaces any previous one
         val pendingIntent = PendingIntent.getBroadcast(
             context,
             reminder.id.toInt(),
@@ -44,21 +40,8 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerTime,
-                    pendingIntent
-                )
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerTime,
-                pendingIntent
-            )
-        }
+        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
+        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
     }
 
     fun cancelReminder(reminderId: Long) {
@@ -77,9 +60,6 @@ class AlarmScheduler @Inject constructor(
 
         val triggerTime = nextWaterAlarmTime(reminder)
         
-        // Lazy Rescheduling
-        if (reminder.lastScheduledAt == triggerTime) return
-
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra(EXTRA_TYPE, TYPE_WATER)
             putExtra(EXTRA_REMINDER_ID, reminder.id)
@@ -96,13 +76,8 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (alarmManager.canScheduleExactAlarms()) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-            }
-        } else {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
-        }
+        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
+        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
     }
 
     fun cancelWaterReminder(reminderId: Long) {
@@ -118,6 +93,14 @@ class AlarmScheduler @Inject constructor(
 
     fun rescheduleForNextDay(habit: Habit, reminder: Reminder) {
         scheduleReminder(habit, reminder)
+    }
+
+    suspend fun rescheduleWaterForNextDay(repository: com.rytm.app.repository.HabitRepository, reminderId: Long) {
+        repository.getWaterReminderById(reminderId)?.let { reminder ->
+            val triggerTime = nextWaterAlarmTime(reminder)
+            scheduleWaterReminder(reminder)
+            repository.updateWaterReminderLastScheduledAt(reminderId, triggerTime)
+        }
     }
 
     suspend fun rescheduleAllAlarms(repository: com.rytm.app.repository.HabitRepository) {
@@ -229,7 +212,8 @@ class AlarmScheduler @Inject constructor(
         const val EXTRA_REMINDER_ID = "reminder_id"
         const val EXTRA_ALARM_SOUND_URI = "alarm_sound_uri"
         const val EXTRA_SCHEDULED_TIME = "scheduled_time"
-        const val NOTIFICATION_CHANNEL_ID = "habitforge_alarms"
+        const val NOTIFICATION_CHANNEL_ID = "rytm_habit_alarms"
+        const val WATER_NOTIFICATION_CHANNEL_ID = "rytm_water_reminders"
         private const val MISSED_NOTIF_ID = 9999
     }
 }
