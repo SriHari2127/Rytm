@@ -176,6 +176,10 @@ class HabitRepository @Inject constructor(
 
     // --- App Settings -----------------------------------------------------------
 
+    companion object {
+        const val KEY_WATER_REMINDERS_ENABLED = "water_reminders_enabled"
+    }
+
     suspend fun getSettingOnce(key: String): String? = appSettingsDao.getSettingOnce(key)?.value
 
     fun getSetting(key: String): Flow<AppSettings?> = appSettingsDao.getSetting(key)
@@ -183,6 +187,9 @@ class HabitRepository @Inject constructor(
     suspend fun saveSetting(key: String, value: String) {
         appSettingsDao.saveSetting(AppSettings(key, value))
     }
+
+    suspend fun isWaterRemindersEnabledOnce(): Boolean =
+        getSettingOnce(KEY_WATER_REMINDERS_ENABLED)?.toBoolean() ?: true
 
     // --- Backup & Restore -------------------------------------------------------
 

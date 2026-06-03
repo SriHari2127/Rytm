@@ -7,8 +7,10 @@ import com.rytm.app.data.entity.WaterReminder
 import com.rytm.app.repository.HabitRepository
 import com.rytm.app.utils.AlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,9 +27,34 @@ class WaterViewModel @Inject constructor(
     val reminders: StateFlow<List<WaterReminder>> = repository.getAllWaterReminders()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val _waterRemindersEnabled = MutableStateFlow(true)
+    val waterRemindersEnabled = _waterRemindersEnabled.asStateFlow()
+
     init {
         viewModelScope.launch {
             repository.ensureWaterLogExists(WaterLog.getCurrentDate())
+            _waterRemindersEnabled.value = repository.isWaterRemindersEnabledOnce()
+        }
+    }
+
+    fun toggleWaterReminders(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.saveSetting(HabitRepository.KEY_WATER_REMINDERS_ENABLED, enabled.toString())
+            _waterRemindersEnabled.value = enabled
+            
+            if (enabled) {
+                // Reschedule all active reminders
+                repository.getAllWaterRemindersOnce().forEach { reminder ->
+                    if (reminder.isActive) {
+                        alarmScheduler.scheduleWaterReminder(reminder)
+                    }
+                }
+            } else {
+                // Cancel all water alarms
+                repository.getAllWaterRemindersOnce().forEach { reminder ->
+                    alarmScheduler.cancelWaterReminder(reminder.id)
+                }
+            }
         }
     }
 
@@ -48,16 +75,20 @@ class WaterViewModel @Inject constructor(
             val id = repository.insertWaterReminder(
                 WaterReminder(hour = hour, minute = minute, amountMl = amountMl)
             )
-            alarmScheduler.scheduleWaterReminder(
-                WaterReminder(id = id, hour = hour, minute = minute, amountMl = amountMl)
-            )
+            if (_waterRemindersEnabled.value) {
+                alarmScheduler.scheduleWaterReminder(
+                    WaterReminder(id = id, hour = hour, minute = minute, amountMl = amountMl)
+                )
+            }
         }
     }
 
     fun updateReminder(reminder: WaterReminder) {
         viewModelScope.launch {
             repository.updateWaterReminder(reminder)
-            alarmScheduler.scheduleWaterReminder(reminder)
+            if (_waterRemindersEnabled.value) {
+                alarmScheduler.scheduleWaterReminder(reminder)
+            }
         }
     }
 

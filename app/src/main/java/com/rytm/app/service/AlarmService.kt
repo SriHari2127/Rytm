@@ -67,6 +67,7 @@ class AlarmService : Service() {
         val habitId = intent.getLongExtra(AlarmScheduler.EXTRA_HABIT_ID, -1L)
         val habitName = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_NAME) ?: "Habit"
         val habitEmoji = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_EMOJI) ?: "⚡"
+        val habitDescription = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_DESCRIPTION) ?: ""
         val reminderId = intent.getLongExtra(AlarmScheduler.EXTRA_REMINDER_ID, -1L)
         val soundUri = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_SOUND_URI) ?: ""
         val scheduledTime = intent.getLongExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, System.currentTimeMillis())
@@ -85,17 +86,18 @@ class AlarmService : Service() {
             startVibration()
         } else if (type == AlarmScheduler.TYPE_WATER) {
             startVibration()
-            scheduleTimeout(reminderId)
         }
         
-        launchRingActivity(type, habitId, habitName, habitEmoji, reminderId, scheduledTime, intent)
+        scheduleTimeout(type, habitName, reminderId)
+        
+        launchRingActivity(type, habitId, habitName, habitEmoji, habitDescription, reminderId, scheduledTime, intent)
 
         return START_NOT_STICKY
     }
 
     private fun launchRingActivity(
         type: String, habitId: Long, habitName: String, habitEmoji: String,
-        reminderId: Long, scheduledTime: Long, incomingIntent: Intent?
+        habitDescription: String, reminderId: Long, scheduledTime: Long, incomingIntent: Intent?
     ) {
         val targetActivity = if (type == AlarmScheduler.TYPE_WATER) {
             WaterRingActivity::class.java
@@ -112,6 +114,7 @@ class AlarmService : Service() {
             putExtra(AlarmScheduler.EXTRA_HABIT_ID, habitId)
             putExtra(AlarmScheduler.EXTRA_HABIT_NAME, habitName)
             putExtra(AlarmScheduler.EXTRA_HABIT_EMOJI, habitEmoji)
+            putExtra(AlarmScheduler.EXTRA_HABIT_DESCRIPTION, habitDescription)
             putExtra(AlarmScheduler.EXTRA_REMINDER_ID, reminderId)
             putExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, scheduledTime)
             
@@ -125,6 +128,37 @@ class AlarmService : Service() {
 
     private fun playAlarmSound(soundUriString: String) {
         try {
+            if (soundUriString.startsWith("resource://")) {
+                val baseResName = soundUriString.substringAfter("resource://")
+                
+                // Find all variations: resname, resname_2, resname_3...
+                val variations = mutableListOf<Int>()
+                var i = 1
+                while (true) {
+                    val suffix = if (i == 1) "" else "_$i"
+                    val resId = resources.getIdentifier(baseResName + suffix, "raw", packageName)
+                    if (resId != 0) {
+                        variations.add(resId)
+                        i++
+                    } else break
+                }
+
+                if (variations.isNotEmpty()) {
+                    val randomResId = variations.random()
+                    mediaPlayer = MediaPlayer.create(this, randomResId).apply {
+                        setAudioAttributes(
+                            AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_ALARM)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                                .build()
+                        )
+                        isLooping = true
+                        start()
+                    }
+                    return
+                }
+            }
+
             val uri: Uri = if (soundUriString.isNotEmpty()) {
                 soundUriString.toUri()
             } else {
@@ -256,14 +290,22 @@ class AlarmService : Service() {
         nm.createNotificationChannel(waterChannel)
     }
 
-    private fun scheduleTimeout(reminderId: Long) {
+    private fun scheduleTimeout(type: String, habitName: String, reminderId: Long) {
         timeoutRunnable = Runnable {
             CoroutineScope(Dispatchers.IO).launch {
-                alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
+                if (type == AlarmScheduler.TYPE_WATER) {
+                    val reminder = repository.getWaterReminderById(reminderId)
+                    if (reminder != null) {
+                        alarmScheduler.postMissedWaterNotification(reminder)
+                    }
+                    alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
+                } else {
+                    alarmScheduler.postMissedHabitNotification(habitName, reminderId)
+                }
             }
             stopAlarm()
         }
-        handler.postDelayed(timeoutRunnable!!, 60000L) // 1 minute timeout
+        handler.postDelayed(timeoutRunnable!!, 30000L) // 30 seconds timeout
     }
 
     private fun acquireWakeLock() {

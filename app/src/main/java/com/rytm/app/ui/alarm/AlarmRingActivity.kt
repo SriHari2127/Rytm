@@ -34,6 +34,8 @@ class AlarmRingActivity : AppCompatActivity() {
     private var habitId: Long = -1L
     private var reminderId: Long = -1L
     private var scheduledTime: Long = 0L
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val timeoutRunnable = Runnable { finish() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setupWindowFlags()
@@ -53,6 +55,7 @@ class AlarmRingActivity : AppCompatActivity() {
         setupUI()
         loadStats()
         startAnimations()
+        handler.postDelayed(timeoutRunnable, 30000L)
     }
 
     private fun setupWindowFlags() {
@@ -82,6 +85,7 @@ class AlarmRingActivity : AppCompatActivity() {
 
     private fun setupUI() {
         var habitName = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_NAME) ?: "Habit"
+        val habitDescription = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_DESCRIPTION) ?: ""
 
         if (type == AlarmScheduler.TYPE_WATER) {
             val amount = intent.getIntExtra(AlarmScheduler.EXTRA_WATER_AMOUNT, 250)
@@ -89,7 +93,11 @@ class AlarmRingActivity : AppCompatActivity() {
             binding.tvMainTitle.text = "Drink Water"
         }
 
-        binding.tvHabitNameSub.text = habitName
+        binding.tvHabitNameSub.text = if (habitDescription.isNotEmpty()) {
+            habitDescription
+        } else {
+            habitName
+        }
 
         binding.btnCompleteCard.setOnClickListener {
             animatePress(it) {
@@ -232,6 +240,7 @@ class AlarmRingActivity : AppCompatActivity() {
     }
 
     private fun stopAlarmAndFinish() {
+        handler.removeCallbacks(timeoutRunnable)
         val stopIntent = Intent(this, AlarmService::class.java)
         stopService(stopIntent)
         finish()
@@ -240,5 +249,6 @@ class AlarmRingActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.d("RytmAlarm", "AlarmRingActivity: onDestroy")
         super.onDestroy()
+        handler.removeCallbacks(timeoutRunnable)
     }
 }

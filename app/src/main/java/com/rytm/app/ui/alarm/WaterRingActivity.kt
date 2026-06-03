@@ -53,7 +53,7 @@ class WaterRingActivity : AppCompatActivity() {
         setupUI()
         loadWaterStats()
         startAnimations()
-        handler.postDelayed(timeoutRunnable, 60000L)
+        handler.postDelayed(timeoutRunnable, 30000L)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -68,7 +68,7 @@ class WaterRingActivity : AppCompatActivity() {
         
         // Reset timeout
         handler.removeCallbacks(timeoutRunnable)
-        handler.postDelayed(timeoutRunnable, 60000L)
+        handler.postDelayed(timeoutRunnable, 30000L)
     }
 
     private fun handleIntent(intent: Intent?) {

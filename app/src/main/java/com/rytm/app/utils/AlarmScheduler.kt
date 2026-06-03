@@ -115,11 +115,13 @@ class AlarmScheduler @Inject constructor(
             }
         }
         // Reschedule Water
-        repository.getAllWaterRemindersOnce().forEach { waterReminder ->
-            val triggerTime = nextWaterAlarmTime(waterReminder)
-            if (waterReminder.lastScheduledAt != triggerTime) {
-                scheduleWaterReminder(waterReminder)
-                repository.updateWaterReminderLastScheduledAt(waterReminder.id, triggerTime)
+        if (repository.isWaterRemindersEnabledOnce()) {
+            repository.getAllWaterRemindersOnce().forEach { waterReminder ->
+                val triggerTime = nextWaterAlarmTime(waterReminder)
+                if (waterReminder.lastScheduledAt != triggerTime) {
+                    scheduleWaterReminder(waterReminder)
+                    repository.updateWaterReminderLastScheduledAt(waterReminder.id, triggerTime)
+                }
             }
         }
     }
@@ -160,12 +162,57 @@ class AlarmScheduler @Inject constructor(
         notificationManager.notify(MISSED_NOTIF_ID, notification)
     }
 
+    fun postMissedWaterNotification(reminder: WaterReminder) {
+        val title = "💧 Missed Water Reminder"
+        val message = "You missed your ${reminder.toDisplayTime()} reminder to drink ${reminder.amountMl}ml of water."
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pi = PendingIntent.getActivity(
+            context, reminder.id.toInt() + WATER_ID_OFFSET + 100, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, WATER_NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .build()
+
+        notificationManager.notify(reminder.id.toInt() + WATER_ID_OFFSET + 100, notification)
+    }
+
+    fun postMissedHabitNotification(habitName: String, reminderId: Long) {
+        val title = "📅 Missed Routine"
+        val message = "You missed your reminder for $habitName. Keep your streak alive by completing it now!"
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pi = PendingIntent.getActivity(
+            context, reminderId.toInt() + 500, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .build()
+
+        notificationManager.notify(reminderId.toInt() + 500, notification)
+    }
+
     private fun buildAlarmIntent(habit: Habit, reminder: Reminder, triggerTime: Long): Intent {
         return Intent(context, AlarmReceiver::class.java).apply {
             putExtra(EXTRA_TYPE, TYPE_HABIT)
             putExtra(EXTRA_HABIT_ID, habit.id)
             putExtra(EXTRA_HABIT_NAME, habit.name)
             putExtra(EXTRA_HABIT_EMOJI, habit.iconEmoji)
+            putExtra(EXTRA_HABIT_DESCRIPTION, habit.description)
             putExtra(EXTRA_REMINDER_ID, reminder.id)
             putExtra(EXTRA_ALARM_SOUND_URI, habit.alarmSoundUri)
             putExtra(EXTRA_SCHEDULED_TIME, triggerTime)
@@ -209,6 +256,7 @@ class AlarmScheduler @Inject constructor(
         const val EXTRA_HABIT_ID = "habit_id"
         const val EXTRA_HABIT_NAME = "habit_name"
         const val EXTRA_HABIT_EMOJI = "habit_emoji"
+        const val EXTRA_HABIT_DESCRIPTION = "habit_description"
         const val EXTRA_REMINDER_ID = "reminder_id"
         const val EXTRA_ALARM_SOUND_URI = "alarm_sound_uri"
         const val EXTRA_SCHEDULED_TIME = "scheduled_time"

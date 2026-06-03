@@ -49,6 +49,9 @@ class WaterReminderFragment : Fragment() {
         binding.btnChangeGoal.setOnClickListener { showSetGoalDialog() }
         binding.btnAddWater.setOnClickListener { viewModel.addWater() }
         binding.btnAddReminder.setOnClickListener { showTimePicker() }
+        binding.switchReminders.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleWaterReminders(isChecked)
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -62,6 +65,17 @@ class WaterReminderFragment : Fragment() {
                 launch {
                     viewModel.reminders.collect { list ->
                         refreshReminderChips(list)
+                    }
+                }
+                launch {
+                    viewModel.waterRemindersEnabled.collect { enabled ->
+                        binding.switchReminders.isChecked = enabled
+                        binding.chipGroupReminders.alpha = if (enabled) 1.0f else 0.5f
+                        binding.btnAddReminder.isEnabled = enabled
+                        // Disable chips if reminders are off
+                        for (i in 0 until binding.chipGroupReminders.childCount) {
+                            binding.chipGroupReminders.getChildAt(i).isEnabled = enabled
+                        }
                     }
                 }
             }
@@ -114,10 +128,12 @@ class WaterReminderFragment : Fragment() {
 
     private fun refreshReminderChips(reminders: List<WaterReminder>) {
         binding.chipGroupReminders.removeAllViews()
+        val enabled = viewModel.waterRemindersEnabled.value
         reminders.sortedBy { it.hour * 60 + it.minute }.forEach { reminder ->
             val chip = Chip(requireContext()).apply {
                 text = "${reminder.toDisplayTime()} • ${reminder.amountMl}ml"
                 isCloseIconVisible = true
+                isEnabled = enabled
                 setOnClickListener { showTimePicker(reminder) }
                 setOnCloseIconClickListener {
                     viewModel.deleteReminder(reminder)
