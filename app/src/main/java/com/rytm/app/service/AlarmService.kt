@@ -128,37 +128,6 @@ class AlarmService : Service() {
 
     private fun playAlarmSound(soundUriString: String) {
         try {
-            if (soundUriString.startsWith("resource://")) {
-                val baseResName = soundUriString.substringAfter("resource://")
-                
-                // Find all variations: resname, resname_2, resname_3...
-                val variations = mutableListOf<Int>()
-                var i = 1
-                while (true) {
-                    val suffix = if (i == 1) "" else "_$i"
-                    val resId = resources.getIdentifier(baseResName + suffix, "raw", packageName)
-                    if (resId != 0) {
-                        variations.add(resId)
-                        i++
-                    } else break
-                }
-
-                if (variations.isNotEmpty()) {
-                    val randomResId = variations.random()
-                    mediaPlayer = MediaPlayer.create(this, randomResId).apply {
-                        setAudioAttributes(
-                            AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_ALARM)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                                .build()
-                        )
-                        isLooping = true
-                        start()
-                    }
-                    return
-                }
-            }
-
             val uri: Uri = if (soundUriString.isNotEmpty()) {
                 soundUriString.toUri()
             } else {
@@ -323,7 +292,10 @@ class AlarmService : Service() {
         mediaPlayer = null
         vibrator?.cancel()
         vibrator = null
-        timeoutRunnable?.let { handler.removeCallbacks(it) }
+        timeoutRunnable?.let { 
+            Log.d("RytmAlarm", "Service: Cancelling timeout")
+            handler.removeCallbacks(it) 
+        }
         timeoutRunnable = null
         wakeLock?.let {
             if (it.isHeld) it.release()
@@ -345,14 +317,8 @@ class AlarmService : Service() {
 
     override fun onDestroy() {
         Log.d("RytmAlarm", "Service destroyed")
+        cleanupServiceState()
         super.onDestroy()
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
-        mediaPlayer = null
-        vibrator?.cancel()
-        wakeLock?.let {
-            if (it.isHeld) it.release()
-        }
     }
 
     companion object {

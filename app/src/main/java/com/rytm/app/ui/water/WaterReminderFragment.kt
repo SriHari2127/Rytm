@@ -47,10 +47,15 @@ class WaterReminderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.btnChangeGoal.setOnClickListener { showSetGoalDialog() }
-        binding.btnAddWater.setOnClickListener { viewModel.addWater() }
+        binding.btnAddWater.setOnClickListener { 
+            viewModel.addWater() 
+            Toast.makeText(requireContext(), "Water logged!", Toast.LENGTH_SHORT).show()
+        }
         binding.btnAddReminder.setOnClickListener { showTimePicker() }
         binding.switchReminders.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleWaterReminders(isChecked)
+            val message = if (isChecked) "Water reminders enabled" else "Water reminders disabled"
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -118,8 +123,10 @@ class WaterReminderFragment : Fragment() {
                 val amount = input.text.toString().toIntOrNull() ?: 250
                 if (existing != null) {
                     viewModel.updateReminder(existing.copy(hour = hour, minute = minute, amountMl = amount))
+                    Toast.makeText(requireContext(), "Reminder updated", Toast.LENGTH_SHORT).show()
                 } else {
                     viewModel.addReminder(hour, minute, amount)
+                    Toast.makeText(requireContext(), "Reminder added", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -137,6 +144,7 @@ class WaterReminderFragment : Fragment() {
                 setOnClickListener { showTimePicker(reminder) }
                 setOnCloseIconClickListener {
                     viewModel.deleteReminder(reminder)
+                    Toast.makeText(requireContext(), "Reminder removed", Toast.LENGTH_SHORT).show()
                 }
             }
             binding.chipGroupReminders.addView(chip)
@@ -202,6 +210,7 @@ class WaterReminderFragment : Fragment() {
             .setPositiveButton("Set") { _, _ ->
                 val newGoal = input.text.toString().toIntOrNull() ?: currentGoal
                 viewModel.setGoal(newGoal)
+                Toast.makeText(requireContext(), "Daily goal updated to $newGoal glasses", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
             .show()

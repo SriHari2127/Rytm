@@ -48,7 +48,10 @@ class HabitsFragment : Fragment() {
                 MaterialAlertDialogBuilder(requireContext())
                     .setTitle("Delete Habit")
                     .setMessage("Delete \"${hwr.habit.name}\"? All history will be lost.")
-                    .setPositiveButton("Delete") { _, _ -> viewModel.deleteHabit(hwr) }
+                    .setPositiveButton("Delete") { _, _ -> 
+                        viewModel.deleteHabit(hwr)
+                        Toast.makeText(requireContext(), "Habit deleted", Toast.LENGTH_SHORT).show()
+                    }
                     .setNegativeButton("Cancel", null)
                     .show()
             },
@@ -58,7 +61,10 @@ class HabitsFragment : Fragment() {
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 viewModel.toggleHabitActive(hwr) 
             },
-            onMarkDoneClick = { hwr -> viewModel.logManualCompletion(hwr.habit.id) }
+            onMarkDoneClick = { hwr -> 
+                viewModel.logManualCompletion(hwr.habit.id)
+                Toast.makeText(requireContext(), "${hwr.habit.name} completed!", Toast.LENGTH_SHORT).show()
+            }
         )
 
         binding.recyclerHabits.layoutManager = LinearLayoutManager(requireContext())

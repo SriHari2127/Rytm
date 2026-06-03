@@ -91,14 +91,8 @@ class AddEditHabitFragment : Fragment() {
         selectedEmoji = habit.iconEmoji
         binding.btnEmoji.text = habit.iconEmoji
         selectedSoundUri = habit.alarmSoundUri
-        
-        binding.tvSelectedSound.text = when {
-            selectedSoundUri.isEmpty() -> "Default Alarm"
-            selectedSoundUri == "resource://peaceful_morning" -> "Peaceful Morning"
-            selectedSoundUri == "resource://hyper_energetic" -> "Hyper Energetic"
-            selectedSoundUri == "resource://motivational" -> "Motivational"
-            else -> getRingtoneName(Uri.parse(selectedSoundUri))
-        }
+        binding.tvSelectedSound.text = if (selectedSoundUri.isEmpty()) "Default Alarm"
+        else getRingtoneName(Uri.parse(selectedSoundUri))
 
         reminders.clear()
         reminders.addAll(existingReminders)
@@ -151,44 +145,17 @@ class AddEditHabitFragment : Fragment() {
 
     private fun setupSoundPicker() {
         binding.btnPickSound.setOnClickListener {
-            val options = arrayOf(
-                "Peaceful Morning",
-                "Hyper Energetic",
-                "Motivational",
-                "System Default Alarm",
-                "Choose from System..."
-            )
-            MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Select Alarm Sound")
-                .setItems(options) { _, which ->
-                    when (which) {
-                        0 -> updateSoundSelection("resource://peaceful_morning", "Peaceful Morning")
-                        1 -> updateSoundSelection("resource://hyper_energetic", "Hyper Energetic")
-                        2 -> updateSoundSelection("resource://motivational", "Motivational")
-                        3 -> updateSoundSelection("", "Default Alarm")
-                        4 -> launchSystemRingtonePicker()
-                    }
+            val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Sound")
+                if (selectedSoundUri.isNotEmpty()) {
+                    putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(selectedSoundUri))
                 }
-                .show()
-        }
-    }
-
-    private fun updateSoundSelection(uri: String, name: String) {
-        selectedSoundUri = uri
-        binding.tvSelectedSound.text = name
-    }
-
-    private fun launchSystemRingtonePicker() {
-        val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
-            putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
-            putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
-            putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
-            putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm Sound")
-            if (selectedSoundUri.isNotEmpty() && !selectedSoundUri.startsWith("resource://")) {
-                putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, Uri.parse(selectedSoundUri))
             }
+            ringtonePickerLauncher.launch(intent)
         }
-        ringtonePickerLauncher.launch(intent)
     }
 
     private fun setupSaveButton() {
