@@ -128,7 +128,8 @@ class AlarmService : Service() {
 
     private fun playAlarmSound(soundUriString: String) {
         try {
-            val uri: Uri = if (soundUriString.isNotEmpty()) {
+            // Safe handling of legacy or empty URIs
+            val uri: Uri = if (soundUriString.isNotEmpty() && !soundUriString.startsWith("resource://")) {
                 soundUriString.toUri()
             } else {
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)

@@ -22,18 +22,6 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _doNotShowOverlay.value = repository.getSettingOnce(KEY_DO_NOT_SHOW_OVERLAY)?.toBoolean() ?: false
-            
-            // Check for missed habits on app startup
-            checkMissedRoutines()
-        }
-    }
-
-    private fun checkMissedRoutines() {
-        viewModelScope.launch {
-            val missed = repository.getMissedHabits()
-            if (missed.isNotEmpty()) {
-                alarmScheduler.postMissedRoutineNotification(missed)
-            }
         }
     }
 
