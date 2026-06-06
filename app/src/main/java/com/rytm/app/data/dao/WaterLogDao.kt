@@ -34,9 +34,7 @@ interface WaterLogDao {
     @Transaction
     suspend fun incrementWaterCount(date: String) {
         val log = getLogForDateOnce(date) ?: return
-        if (log.count < log.goal) {
-            updateCount(date, log.count + 1)
-        }
+        updateCount(date, log.count + 1)
     }
 }
 

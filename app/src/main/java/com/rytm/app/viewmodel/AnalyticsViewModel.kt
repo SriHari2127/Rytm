@@ -24,9 +24,16 @@ data class HabitStats(
     val longestStreak: Int
 )
 
+data class RecentActivityEntry(
+    val habitName: String,
+    val habitEmoji: String,
+    val status: CompletionStatus,
+    val timestamp: Long
+)
+
 data class AnalyticsState(
     val habitStats: List<HabitStats> = emptyList(),
-    val recentLogs: List<CompletionLog> = emptyList(),
+    val recentLogs: List<RecentActivityEntry> = emptyList(),
     val weeklyCompletionByDay: Map<Int, Int> = emptyMap(), // dayOfWeek -> count
     val overallWeeklyRate: Float = 0f,
     val completionsThisMonth: Int = 0,
@@ -42,7 +49,7 @@ class AnalyticsViewModel @Inject constructor(
     val events: SharedFlow<String> = _events.asSharedFlow()
 
     val state: StateFlow<AnalyticsState> = combine(
-        repository.getAllActiveHabits(),
+        repository.getAllHabits(),
         repository.getAllLogs()
     ) { habits, allHistory ->
         calculateAnalytics(habits, allHistory)
@@ -53,7 +60,19 @@ class AnalyticsViewModel @Inject constructor(
         val sevenDaysAgo = now - 7L * 24 * 60 * 60 * 1000
         val thirtyDaysAgo = now - 30L * 24 * 60 * 60 * 1000
 
-        val recentLogs = allHistory.sortedByDescending { it.completedAt }.take(50)
+        val recentLogs = allHistory
+            .filter { it.status == CompletionStatus.COMPLETED || it.status == CompletionStatus.MISSED }
+            .sortedByDescending { it.completedAt }
+            .take(50)
+            .map { log ->
+                val habit = habits.find { it.id == log.habitId }
+                RecentActivityEntry(
+                    habitName = habit?.name ?: "Unknown Habit",
+                    habitEmoji = habit?.iconEmoji ?: "❓",
+                    status = log.status,
+                    timestamp = log.completedAt
+                )
+            }
 
         // Monthly Summary
         val thisMonthStart = Calendar.getInstance().apply {
@@ -90,8 +109,8 @@ class AnalyticsViewModel @Inject constructor(
             weeklyMap[day] = (weeklyMap[day] ?: 0) + 1
         }
 
-        // Per-habit stats
-        val habitStats = habits.map { habit ->
+        // Per-habit stats - ONLY ACTIVE HABITS
+        val habitStats = habits.filter { it.isActive }.map { habit ->
             val logsForHabit = allHistory.filter { it.habitId == habit.id && it.completedAt >= thirtyDaysAgo }
             val completed = logsForHabit.count { it.status == CompletionStatus.COMPLETED }
             val weeklyLogs = logsForHabit.filter { it.completedAt >= sevenDaysAgo }

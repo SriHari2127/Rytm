@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.rytm.app.R
 import com.rytm.app.data.entity.Habit
@@ -40,8 +41,15 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
-        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            // Fallback for missing exact alarm permission
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            Log.d("RytmAlarm", "Scheduled habit alarm (inexact fallback): ${habit.name} at $triggerTime")
+        } else {
+            val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
+            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            Log.d("RytmAlarm", "Scheduled habit alarm (exact): ${habit.name} at $triggerTime")
+        }
     }
 
     fun cancelReminder(reminderId: Long) {
@@ -53,6 +61,7 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         alarmManager.cancel(pendingIntent)
+        Log.d("RytmAlarm", "Cancelled habit alarm: $reminderId")
     }
 
     fun scheduleWaterReminder(reminder: WaterReminder) {
@@ -76,8 +85,14 @@ class AlarmScheduler @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
-        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            Log.d("RytmAlarm", "Scheduled water alarm (inexact fallback): ${reminder.id} at $triggerTime")
+        } else {
+            val alarmClockInfo = AlarmManager.AlarmClockInfo(triggerTime, pendingIntent)
+            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            Log.d("RytmAlarm", "Scheduled water alarm (exact): ${reminder.id} at $triggerTime")
+        }
     }
 
     fun cancelWaterReminder(reminderId: Long) {

@@ -22,6 +22,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import com.rytm.app.R
+import com.rytm.app.data.entity.CompletionLog
+import com.rytm.app.data.entity.CompletionStatus
 import com.rytm.app.repository.HabitRepository
 import com.rytm.app.ui.alarm.AlarmRingActivity
 import com.rytm.app.ui.alarm.WaterRingActivity
@@ -70,9 +72,16 @@ class AlarmService : Service() {
         val habitDescription = intent.getStringExtra(AlarmScheduler.EXTRA_HABIT_DESCRIPTION) ?: ""
         val reminderId = intent.getLongExtra(AlarmScheduler.EXTRA_REMINDER_ID, -1L)
         val soundUri = intent.getStringExtra(AlarmScheduler.EXTRA_ALARM_SOUND_URI) ?: ""
-        val scheduledTime = intent.getLongExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, System.currentTimeMillis())
+        val scheduledTime = intent.getLongExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, 0L)
         
-        Log.d("RytmAlarm", "Service started: type=$type, reminderId=$reminderId")
+        Log.d("RytmAlarm", "Service started: type=$type, reminderId=$reminderId, scheduledTime=$scheduledTime")
+
+        // 1. Stale Alarm Check: If alarm is more than 15 minutes late or has no timestamp, ignore it
+        if (scheduledTime == 0L || System.currentTimeMillis() - scheduledTime > 15 * 60 * 1000) {
+            Log.d("RytmAlarm", "Ignoring stale or invalid alarm (time=$scheduledTime, now=${System.currentTimeMillis()})")
+            stopSelf()
+            return START_NOT_STICKY
+        }
 
         createNotificationChannels()
         val notification = buildNotification(type, habitName, habitEmoji, habitId, reminderId, scheduledTime)
@@ -88,7 +97,7 @@ class AlarmService : Service() {
             startVibration()
         }
         
-        scheduleTimeout(type, habitName, reminderId)
+        scheduleTimeout(type, habitName, habitId, reminderId, scheduledTime)
         
         launchRingActivity(type, habitId, habitName, habitEmoji, habitDescription, reminderId, scheduledTime, intent)
 
@@ -128,7 +137,6 @@ class AlarmService : Service() {
 
     private fun playAlarmSound(soundUriString: String) {
         try {
-            // Safe handling of legacy or empty URIs
             val uri: Uri = if (soundUriString.isNotEmpty() && !soundUriString.startsWith("resource://")) {
                 soundUriString.toUri()
             } else {
@@ -136,20 +144,19 @@ class AlarmService : Service() {
                     ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
             }
 
-            mediaPlayer = MediaPlayer().apply {
+            // Using create() is more standard for simple URIs and handles preparation automatically
+            mediaPlayer = MediaPlayer.create(applicationContext, uri)?.apply {
                 setAudioAttributes(
                     AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .build()
                 )
-                setDataSource(applicationContext, uri)
                 isLooping = true
-                prepare()
                 start()
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("RytmAlarm", "Error playing alarm sound", e)
         }
     }
 
@@ -175,7 +182,8 @@ class AlarmService : Service() {
         type: String, habitName: String, habitEmoji: String,
         habitId: Long, reminderId: Long, scheduledTime: Long
     ): Notification {
-        val ringIntent = Intent(this, if (type == AlarmScheduler.TYPE_WATER) WaterRingActivity::class.java else AlarmRingActivity::class.java).apply {
+        val isWater = type == AlarmScheduler.TYPE_WATER
+        val ringIntent = Intent(this, if (isWater) WaterRingActivity::class.java else AlarmRingActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
             putExtra(AlarmScheduler.EXTRA_TYPE, type)
             putExtra(AlarmScheduler.EXTRA_HABIT_ID, habitId)
@@ -184,12 +192,16 @@ class AlarmService : Service() {
             putExtra(AlarmScheduler.EXTRA_REMINDER_ID, reminderId)
             putExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, scheduledTime)
         }
+
+        // Use reminderId for request code to ensure uniqueness for both habits and water
+        val baseRequestCode = if (isWater) reminderId.toInt() + AlarmScheduler.WATER_ID_OFFSET else reminderId.toInt()
+
         val pi = PendingIntent.getActivity(
-            this, habitId.toInt() + (if (type == AlarmScheduler.TYPE_WATER) AlarmScheduler.WATER_ID_OFFSET else 0), ringIntent,
+            this, baseRequestCode, ringIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val channelId = if (type == AlarmScheduler.TYPE_WATER) {
+        val channelId = if (isWater) {
             AlarmScheduler.WATER_NOTIFICATION_CHANNEL_ID
         } else {
             AlarmScheduler.NOTIFICATION_CHANNEL_ID
@@ -199,7 +211,7 @@ class AlarmService : Service() {
             action = ACTION_STOP_ALARM
         }
         val stopPi = PendingIntent.getService(
-            this, habitId.toInt() + 100, stopIntent,
+            this, baseRequestCode + 500, stopIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -215,7 +227,7 @@ class AlarmService : Service() {
             .setColor(android.graphics.Color.BLACK)
             .setColorized(true)
             .apply {
-                if (type == AlarmScheduler.TYPE_HABIT) {
+                if (!isWater) {
                     setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
                 } else {
                     setSound(null)
@@ -260,7 +272,10 @@ class AlarmService : Service() {
         nm.createNotificationChannel(waterChannel)
     }
 
-    private fun scheduleTimeout(type: String, habitName: String, reminderId: Long) {
+    private fun scheduleTimeout(
+        type: String, habitName: String, habitId: Long, 
+        reminderId: Long, scheduledTime: Long
+    ) {
         timeoutRunnable = Runnable {
             CoroutineScope(Dispatchers.IO).launch {
                 if (type == AlarmScheduler.TYPE_WATER) {
@@ -271,6 +286,16 @@ class AlarmService : Service() {
                     alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
                 } else {
                     alarmScheduler.postMissedHabitNotification(habitName, reminderId)
+                    
+                    // Log as MISSED for habits
+                    repository.logCompletion(
+                        CompletionLog(
+                            habitId = habitId,
+                            reminderId = reminderId,
+                            status = CompletionStatus.MISSED,
+                            scheduledAt = scheduledTime
+                        )
+                    )
                 }
             }
             stopAlarm()

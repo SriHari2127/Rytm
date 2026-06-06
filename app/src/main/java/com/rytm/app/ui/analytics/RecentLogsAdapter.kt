@@ -6,32 +6,34 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.rytm.app.data.entity.CompletionLog
 import com.rytm.app.data.entity.CompletionStatus
 import com.rytm.app.databinding.ItemLogBinding
+import com.rytm.app.viewmodel.RecentActivityEntry
 import java.text.SimpleDateFormat
 import java.util.*
 
-class RecentLogsAdapter : ListAdapter<CompletionLog, RecentLogsAdapter.ViewHolder>(DiffCallback()) {
+class RecentLogsAdapter : ListAdapter<RecentActivityEntry, RecentLogsAdapter.ViewHolder>(DiffCallback()) {
 
     private val sdf = SimpleDateFormat("EEE, MMM d  hh:mm a", Locale.getDefault())
 
     inner class ViewHolder(private val binding: ItemLogBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(log: CompletionLog) {
-            binding.tvLogTime.text = sdf.format(Date(log.completedAt))
-            when (log.status) {
+        fun bind(entry: RecentActivityEntry) {
+            binding.tvLogTime.text = sdf.format(Date(entry.timestamp))
+            val habitText = "${entry.habitEmoji} ${entry.habitName}"
+            
+            when (entry.status) {
                 CompletionStatus.COMPLETED -> {
-                    binding.tvLogStatus.text = "✅ Completed"
+                    binding.tvLogStatus.text = "✅ Completed: $habitText"
                     binding.tvLogStatus.setTextColor(Color.parseColor("#4CAF50"))
                 }
-                CompletionStatus.SKIPPED -> {
-                    binding.tvLogStatus.text = "❌ Skipped"
+                CompletionStatus.MISSED -> {
+                    binding.tvLogStatus.text = "⚠️ Missed: $habitText"
                     binding.tvLogStatus.setTextColor(Color.parseColor("#EF4444"))
                 }
-                CompletionStatus.SNOOZED -> {
-                    binding.tvLogStatus.text = "⏰ Snoozed"
-                    binding.tvLogStatus.setTextColor(Color.parseColor("#FF9800"))
+                else -> {
+                    binding.tvLogStatus.text = habitText
+                    binding.tvLogStatus.setTextColor(Color.GRAY)
                 }
             }
         }
@@ -44,9 +46,10 @@ class RecentLogsAdapter : ListAdapter<CompletionLog, RecentLogsAdapter.ViewHolde
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
 
-    class DiffCallback : DiffUtil.ItemCallback<CompletionLog>() {
-        override fun areItemsTheSame(a: CompletionLog, b: CompletionLog) = a.id == b.id
-        override fun areContentsTheSame(a: CompletionLog, b: CompletionLog) = a == b
+    class DiffCallback : DiffUtil.ItemCallback<RecentActivityEntry>() {
+        override fun areItemsTheSame(a: RecentActivityEntry, b: RecentActivityEntry) = 
+            a.timestamp == b.timestamp && a.habitName == b.habitName
+        override fun areContentsTheSame(a: RecentActivityEntry, b: RecentActivityEntry) = a == b
     }
 }
 

@@ -17,8 +17,14 @@ class AlarmReceiver : BroadcastReceiver() {
         
         Log.d("RytmAlarm", "Receiver fired: type=$type, habitId=$habitId, reminderId=$reminderId")
 
-        if (habitId == -1L && reminderId == -1L) {
-            Log.e("RytmAlarm", "Receiver: Invalid IDs, ignoring")
+        // For Water reminders, habitId will be -1L, but reminderId should be present
+        if (type == AlarmScheduler.TYPE_HABIT && habitId == -1L) {
+            Log.e("RytmAlarm", "Receiver: Missing habitId for habit alarm, ignoring")
+            return
+        }
+        
+        if (reminderId == -1L) {
+            Log.e("RytmAlarm", "Receiver: Missing reminderId, ignoring")
             return
         }
 

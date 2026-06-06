@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.rytm.app.R
 import com.rytm.app.data.entity.*
 import com.rytm.app.repository.HabitRepository
@@ -18,6 +19,7 @@ import com.rytm.app.service.AlarmService
 import com.rytm.app.utils.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import java.util.*
 import javax.inject.Inject
@@ -35,12 +37,14 @@ class AlarmRingActivity : AppCompatActivity() {
     private var reminderId: Long = -1L
     private var scheduledTime: Long = 0L
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
-    private val timeoutRunnable = Runnable { finish() }
+    private val timeoutRunnable = Runnable { stopAlarmAndFinish() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setupWindowFlags()
         setFinishOnTouchOutside(false)
         super.onCreate(savedInstanceState)
+        
+        extractIntentData()
         
         Log.d("RytmAlarm", "AlarmRingActivity: onCreate $reminderId")
         
@@ -51,7 +55,6 @@ class AlarmRingActivity : AppCompatActivity() {
             // Disable back button during alarm
         }
 
-        extractIntentData()
         setupUI()
         loadStats()
         startAnimations()
@@ -105,12 +108,6 @@ class AlarmRingActivity : AppCompatActivity() {
                 else logWaterAndFinish()
             }
         }
-
-        binding.btnSkipCard.setOnClickListener {
-            animatePress(it) {
-                logAndDismiss(CompletionStatus.SKIPPED)
-            }
-        }
     }
 
     private fun startAnimations() {
@@ -145,9 +142,8 @@ class AlarmRingActivity : AppCompatActivity() {
     }
 
     private fun loadStats() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             try {
-                val allLogs = repository.getAllLogsFrom(0)
                 val todayStart = Calendar.getInstance().apply {
                     set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
@@ -155,30 +151,56 @@ class AlarmRingActivity : AppCompatActivity() {
                 val weekStart = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }.timeInMillis
                 val monthStart = Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) }.timeInMillis
 
-                val todayDone = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= todayStart }
-                val totalHabits = repository.getAllActiveHabits().first().size
+                // Collect habit logs
+                launch {
+                    repository.getAllLogs().collect { allLogs ->
+                        val todayDone = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= todayStart }
+                        val totalHabits = repository.getAllActiveHabits().first().size
 
-                val weeklyCount = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= weekStart }
-                val monthlyCount = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= monthStart }
-                
-                val habits = repository.getHabitsWithRemindersOnce()
-                var bestStreak = 0
-                habits.forEach { hwr ->
-                    val streak = calculateStreakForHabit(allLogs.filter { it.habitId == hwr.habit.id })
-                    if (streak > bestStreak) bestStreak = streak
+                        val weeklyCount = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= weekStart }
+                        val monthlyCount = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= monthStart }
+                        
+                        val habits = repository.getHabitsWithRemindersOnce()
+                        var bestStreak = 0
+                        habits.forEach { hwr ->
+                            val streak = calculateStreakForHabit(allLogs.filter { it.habitId == hwr.habit.id })
+                            if (streak > bestStreak) bestStreak = streak
+                        }
+
+                        val currentHabitStreak = if (habitId != -1L) {
+                            calculateStreakForHabit(allLogs.filter { it.habitId == habitId })
+                        } else 0
+
+                        withContext(Dispatchers.Main) {
+                            binding.tvStatToday.text = "$todayDone/$totalHabits"
+                            binding.tvStatWeekly.text = weeklyCount.toString()
+                            binding.tvStatMonthly.text = monthlyCount.toString()
+                            binding.tvStatBest.text = bestStreak.toString()
+                            binding.tvStreakCount.text = "$currentHabitStreak day streak"
+                            
+                            if (type != AlarmScheduler.TYPE_WATER) {
+                                val habitProgress = if (totalHabits > 0) (todayDone * 100) / totalHabits else 0
+                                binding.progressRing.progress = habitProgress
+                            }
+                        }
+                    }
                 }
 
-                val currentHabitStreak = if (habitId != -1L) {
-                    calculateStreakForHabit(allLogs.filter { it.habitId == habitId })
-                } else 0
+                // Collect water log
+                launch {
+                    repository.getWaterLogForDate(WaterLog.getCurrentDate()).collect { waterLog ->
+                        val waterProgress = if (waterLog != null && waterLog.goal > 0) {
+                            (waterLog.count * 100) / waterLog.goal
+                        } else 0
 
-                withContext(Dispatchers.Main) {
-                    binding.tvStatToday.text = "$todayDone/$totalHabits"
-                    binding.tvStatWeekly.text = weeklyCount.toString()
-                    binding.tvStatMonthly.text = monthlyCount.toString()
-                    binding.tvStatBest.text = bestStreak.toString()
-                    binding.tvStreakCount.text = "$currentHabitStreak day streak"
+                        withContext(Dispatchers.Main) {
+                            if (type == AlarmScheduler.TYPE_WATER) {
+                                binding.progressRing.progress = waterProgress
+                            }
+                        }
+                    }
                 }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }

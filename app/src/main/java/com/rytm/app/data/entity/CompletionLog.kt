@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-enum class CompletionStatus { COMPLETED, SKIPPED, SNOOZED }
+enum class CompletionStatus { COMPLETED, MISSED, SKIPPED, SNOOZED }
 
 @Entity(
     tableName = "completion_logs",

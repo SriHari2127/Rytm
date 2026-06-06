@@ -71,6 +71,17 @@
                     android:src="@drawable/neon_ring_premium"
                     app:tint="@color/neon_blue" />
 
+                <ProgressBar
+                    android:id="@+id/progress_ring"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="185dp"
+                    android:layout_height="185dp"
+                    android:layout_gravity="center"
+                    android:indeterminate="false"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/neon_circular_progress" />
+
                 <ImageView
                     android:id="@+id/iv_water_icon"
                     android:layout_width="56dp"
@@ -116,15 +127,6 @@
                     android:textColor="@color/text_secondary"
                     android:textSize="14sp"
                     android:layout_marginTop="2dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Your body will thank you! 💧"
-                    android:textColor="@color/neon_blue"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="4dp"/>
             </LinearLayout>
 
             <!-- Water Stats Card -->
@@ -239,7 +241,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingHorizontal="24dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="64dp"
                 app:layout_constraintTop_toBottomOf="@id/water_stats_card">
 
                 <!-- Done -->
@@ -278,49 +280,6 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Great job! Stay hydrated."
-                                android:textColor="#CCFFFFFF"
-                                android:textSize="11sp"/>
-                        </LinearLayout>
-                    </RelativeLayout>
-                </FrameLayout>
-
-                <!-- Skip -->
-                <FrameLayout
-                    android:id="@+id/btn_skip_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="72dp"
-                    android:layout_marginTop="12dp"
-                    android:background="@drawable/bg_button_skip_water">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="32dp"
-                            android:src="@drawable/ic_skip_premium"
-                            app:tint="@color/white"/>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:orientation="vertical"
-                            android:gravity="center_horizontal">
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Skip this One"
-                                android:textColor="@color/white"
-                                android:textStyle="bold"
-                                android:textSize="16sp"/>
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="I'll catch you on the next glass."
                                 android:textColor="#CCFFFFFF"
                                 android:textSize="11sp"/>
                         </LinearLayout>

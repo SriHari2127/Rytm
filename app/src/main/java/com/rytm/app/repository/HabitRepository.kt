@@ -22,6 +22,8 @@ class HabitRepository @Inject constructor(
 
     fun getAllActiveHabits(): Flow<List<Habit>> = habitDao.getAllActiveHabits()
 
+    fun getAllHabits(): Flow<List<Habit>> = habitDao.getAllHabits()
+
     fun getHabitsWithReminders(): Flow<List<HabitWithReminders>> =
         habitDao.getHabitsWithReminders()
 

@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.view.animation.AnimationUtils
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.rytm.app.R
 import com.rytm.app.data.entity.WaterLog
 import com.rytm.app.databinding.ActivityWaterRingBinding
@@ -18,7 +19,7 @@ import com.rytm.app.service.AlarmService
 import com.rytm.app.utils.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,16 +33,16 @@ class WaterRingActivity : AppCompatActivity() {
     private var reminderId: Long = -1L
     private var amountMl: Int = 250
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
-    private val timeoutRunnable = Runnable { finish() }
+    private val timeoutRunnable = Runnable { stopAlarmAndFinish() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setupWindowFlags()
         setFinishOnTouchOutside(false)
         super.onCreate(savedInstanceState)
         
-        Log.d("RytmAlarm", "WaterRingActivity: onCreate $reminderId")
-        
         handleIntent(intent)
+        
+        Log.d("RytmAlarm", "WaterRingActivity: onCreate $reminderId")
         
         binding = ActivityWaterRingBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -107,12 +108,6 @@ class WaterRingActivity : AppCompatActivity() {
         binding.btnCompleteCard.setOnClickListener {
             animatePress(it) { logWaterAndFinish() }
         }
-
-        binding.btnSkipCard.setOnClickListener {
-            animatePress(it) {
-                stopAlarmAndFinish()
-            }
-        }
     }
 
     private fun startAnimations() {
@@ -149,21 +144,26 @@ class WaterRingActivity : AppCompatActivity() {
     }
 
     private fun loadWaterStats() {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch {
             try {
                 val today = WaterLog.getCurrentDate()
-                val log = repository.getWaterLogForDate(today).first() ?: WaterLog(today, 0, 8)
-                
-                // Assuming each glass is 250ml for stats display
-                val currentMl = log.count * 250 
-                val targetMl = log.goal * 250
-                val remainingMl = (targetMl - currentMl).coerceAtLeast(0)
-                val percent = if (targetMl > 0) ((currentMl * 100) / targetMl) else 0
+                repository.ensureWaterLogExists(today)
 
-                withContext(Dispatchers.Main) {
-                    binding.tvWaterStatRemaining.text = "${remainingMl}ml"
-                    binding.tvWaterStatGlasses.text = "${log.count} done"
-                    binding.tvWaterStatPercent.text = "$percent%"
+                repository.getWaterLogForDate(today).collect { log ->
+                    val actualLog = log ?: WaterLog(today, 0, 8)
+                    
+                    // Assuming each glass is 250ml for stats display
+                    val currentMl = actualLog.count * 250 
+                    val targetMl = actualLog.goal * 250
+                    val remainingMl = (targetMl - currentMl).coerceAtLeast(0)
+                    val percent = if (targetMl > 0) ((currentMl * 100) / targetMl) else 0
+
+                    withContext(Dispatchers.Main) {
+                        binding.tvWaterStatRemaining.text = "${remainingMl}ml"
+                        binding.tvWaterStatGlasses.text = "${actualLog.count} done"
+                        binding.tvWaterStatPercent.text = "$percent%"
+                        binding.progressRing.progress = percent
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -173,13 +173,18 @@ class WaterRingActivity : AppCompatActivity() {
 
     private fun logWaterAndFinish() {
         val today = WaterLog.getCurrentDate()
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             repository.ensureWaterLogExists(today)
             repository.incrementWaterCount(today)
             if (reminderId != -1L) {
                 alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
             }
-            stopAlarmAndFinish()
+            
+            // Give UI a moment to update and user to see progress
+            delay(800)
+            withContext(Dispatchers.Main) {
+                stopAlarmAndFinish()
+            }
         }
     }
 
