@@ -42,7 +42,6 @@ class AlarmScheduler @Inject constructor(
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
-            // Fallback for missing exact alarm permission
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
             Log.d("RytmAlarm", "Scheduled habit alarm (inexact fallback): ${habit.name} at $triggerTime")
         } else {
@@ -119,7 +118,6 @@ class AlarmScheduler @Inject constructor(
     }
 
     suspend fun rescheduleAllAlarms(repository: com.rytm.app.repository.HabitRepository) {
-        // Reschedule Habits
         repository.getHabitsWithRemindersOnce().forEach { hwr ->
             hwr.reminders.forEach { reminder ->
                 val triggerTime = nextAlarmTime(reminder)
@@ -129,7 +127,6 @@ class AlarmScheduler @Inject constructor(
                 }
             }
         }
-        // Reschedule Water
         if (repository.isWaterRemindersEnabledOnce()) {
             repository.getAllWaterRemindersOnce().forEach { waterReminder ->
                 val triggerTime = nextWaterAlarmTime(waterReminder)

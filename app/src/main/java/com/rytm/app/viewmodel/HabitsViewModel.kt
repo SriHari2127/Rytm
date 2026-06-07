@@ -59,14 +59,12 @@ class HabitsViewModel @Inject constructor(
                 repository.insertHabit(habit)
             } else {
                 repository.updateHabit(habit)
-                // Cancel old alarms
                 repository.getRemindersForHabitOnce(habit.id).forEach {
                     alarmScheduler.cancelReminder(it.id)
                 }
                 habit.id
             }
             repository.replaceRemindersForHabit(habitId, reminders)
-            // Schedule new alarms
             val savedHabit = repository.getHabitWithReminders(habitId) ?: return@launch
             savedHabit.reminders.forEach { reminder ->
                 alarmScheduler.scheduleReminder(savedHabit.habit, reminder)
@@ -88,7 +86,7 @@ class HabitsViewModel @Inject constructor(
             repository.logCompletion(
                 CompletionLog(
                     habitId = habitId,
-                    reminderId = 0L, // Manual completion
+                    reminderId = 0L,
                     status = CompletionStatus.COMPLETED,
                     scheduledAt = System.currentTimeMillis()
                 )

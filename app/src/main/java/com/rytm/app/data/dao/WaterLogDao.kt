@@ -22,6 +22,9 @@ interface WaterLogDao {
     @Query("UPDATE water_logs SET count = :count WHERE date = :date")
     suspend fun updateCount(date: String, count: Int)
 
+    @Query("UPDATE water_logs SET totalMl = :totalMl WHERE date = :date")
+    suspend fun updateTotalMl(date: String, totalMl: Int)
+
     @Query("UPDATE water_logs SET goal = :goal WHERE date = :date")
     suspend fun updateGoal(date: String, goal: Int)
 
@@ -35,6 +38,14 @@ interface WaterLogDao {
     suspend fun incrementWaterCount(date: String) {
         val log = getLogForDateOnce(date) ?: return
         updateCount(date, log.count + 1)
+        updateTotalMl(date, log.totalMl + 250) // Default 250ml for legacy glass increment
+    }
+
+    @Transaction
+    suspend fun addWaterMl(date: String, amount: Int) {
+        val log = getLogForDateOnce(date) ?: return
+        updateCount(date, log.count + 1)
+        updateTotalMl(date, log.totalMl + amount)
     }
 }
 

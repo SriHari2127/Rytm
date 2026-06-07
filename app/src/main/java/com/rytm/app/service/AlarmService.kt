@@ -61,7 +61,6 @@ class AlarmService : Service() {
             return START_NOT_STICKY
         }
 
-        // Clean up any existing alarm state before starting a new one
         cleanupServiceState()
         acquireWakeLock()
 
@@ -76,7 +75,6 @@ class AlarmService : Service() {
         
         Log.d("RytmAlarm", "Service started: type=$type, reminderId=$reminderId, scheduledTime=$scheduledTime")
 
-        // 1. Stale Alarm Check: If alarm is more than 15 minutes late or has no timestamp, ignore it
         if (scheduledTime == 0L || System.currentTimeMillis() - scheduledTime > 15 * 60 * 1000) {
             Log.d("RytmAlarm", "Ignoring stale or invalid alarm (time=$scheduledTime, now=${System.currentTimeMillis()})")
             stopSelf()
@@ -86,7 +84,6 @@ class AlarmService : Service() {
         createNotificationChannels()
         val notification = buildNotification(type, habitName, habitEmoji, habitId, reminderId, scheduledTime)
         
-        // Use a unique notification ID for each reminder to prevent collisions
         val notificationId = if (reminderId != -1L) (reminderId.toInt() % 10000) + 1000 else FOREGROUND_ID
         startForeground(notificationId, notification)
 
@@ -287,7 +284,6 @@ class AlarmService : Service() {
                 } else {
                     alarmScheduler.postMissedHabitNotification(habitName, reminderId)
                     
-                    // Log as MISSED for habits
                     repository.logCompletion(
                         CompletionLog(
                             habitId = habitId,
@@ -300,7 +296,7 @@ class AlarmService : Service() {
             }
             stopAlarm()
         }
-        handler.postDelayed(timeoutRunnable!!, 30000L) // 30 seconds timeout
+        handler.postDelayed(timeoutRunnable!!, 30000L)
     }
 
     private fun acquireWakeLock() {

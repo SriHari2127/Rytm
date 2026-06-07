@@ -52,7 +52,6 @@ class AlarmRingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         onBackPressedDispatcher.addCallback(this) {
-            // Disable back button during alarm
         }
 
         setupUI()
@@ -151,7 +150,6 @@ class AlarmRingActivity : AppCompatActivity() {
                 val weekStart = Calendar.getInstance().apply { add(Calendar.DAY_OF_YEAR, -7) }.timeInMillis
                 val monthStart = Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) }.timeInMillis
 
-                // Collect habit logs
                 launch {
                     repository.getAllLogs().collect { allLogs ->
                         val todayDone = allLogs.count { it.status == CompletionStatus.COMPLETED && it.completedAt >= todayStart }
@@ -186,11 +184,13 @@ class AlarmRingActivity : AppCompatActivity() {
                     }
                 }
 
-                // Collect water log
                 launch {
+                    val activeReminders = repository.getAllWaterRemindersOnce().filter { it.isActive }
+                    val trueTargetMl = activeReminders.sumOf { it.amountMl }.coerceAtLeast(2000)
+
                     repository.getWaterLogForDate(WaterLog.getCurrentDate()).collect { waterLog ->
-                        val waterProgress = if (waterLog != null && waterLog.goal > 0) {
-                            (waterLog.count * 100) / waterLog.goal
+                        val waterProgress = if (waterLog != null && trueTargetMl > 0) {
+                            (waterLog.totalMl * 100) / trueTargetMl
                         } else 0
 
                         withContext(Dispatchers.Main) {

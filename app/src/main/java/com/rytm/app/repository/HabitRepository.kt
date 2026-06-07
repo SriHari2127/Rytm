@@ -98,6 +98,10 @@ class HabitRepository @Inject constructor(
         waterLogDao.incrementWaterCount(date)
     }
 
+    suspend fun addWater(date: String, amount: Int) {
+        waterLogDao.addWaterMl(date, amount)
+    }
+
     suspend fun ensureWaterLogExists(date: String) {
         val existing = waterLogDao.getLogForDateOnce(date)
         if (existing == null) {

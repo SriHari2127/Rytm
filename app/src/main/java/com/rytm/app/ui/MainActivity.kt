@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { _ ->
-        // Once system dialogs are done, proceed to custom dialogs
         checkExactAlarmPermission()
     }
 
@@ -64,7 +63,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        // If the user just granted the permission, reschedule all alarms to be sure
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
             if (am.canScheduleExactAlarms()) {
@@ -94,7 +92,6 @@ class MainActivity : AppCompatActivity() {
         if (permissions.isNotEmpty()) {
             requestPermissionLauncher.launch(permissions.toTypedArray())
         } else {
-            // If runtime permissions already granted, move to exact alarm check
             checkExactAlarmPermission()
         }
     }
@@ -114,7 +111,6 @@ class MainActivity : AppCompatActivity() {
                     }
                     .setNegativeButton("Later", null)
                     .setOnDismissListener { 
-                        // Once this dialog is closed, check for the next one
                         checkOverlayPermission() 
                     }
                     .show()

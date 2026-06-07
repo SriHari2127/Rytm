@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Rytm</string>
+    <string name="water_ml_format">%1$dml / %2$dml</string>
+    <string name="water_target_only_format">%1$dml</string>
+    <string name="default_water_ml">0ml</string>
 </resources>

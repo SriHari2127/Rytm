@@ -19,7 +19,7 @@ class Converters {
 
 @Database(
     entities = [Habit::class, Reminder::class, CompletionLog::class, WaterReminder::class, WaterLog::class, AppSettings::class],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

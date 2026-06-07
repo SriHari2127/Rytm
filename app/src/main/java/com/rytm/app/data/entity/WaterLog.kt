@@ -10,7 +10,8 @@ data class WaterLog(
     @PrimaryKey
     val date: String, // Format: YYYY-MM-DD
     val count: Int = 0,
-    val goal: Int = 8
+    val goal: Int = 8,
+    val totalMl: Int = 0
 ) {
     companion object {
         fun getCurrentDate(): String {

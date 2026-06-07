@@ -48,7 +48,6 @@ class WaterRingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         onBackPressedDispatcher.addCallback(this) {
-            // Disable back button during alarm
         }
 
         setupUI()
@@ -63,11 +62,9 @@ class WaterRingActivity : AppCompatActivity() {
         Log.d("RytmAlarm", "WaterRingActivity: onNewIntent")
         handleIntent(intent)
         
-        // Refresh UI
         setupUI()
         loadWaterStats()
         
-        // Reset timeout
         handler.removeCallbacks(timeoutRunnable)
         handler.postDelayed(timeoutRunnable, 30000L)
     }
@@ -98,7 +95,6 @@ class WaterRingActivity : AppCompatActivity() {
     }
 
     private fun extractIntentData() {
-        // Redundant with handleIntent but keeping for compatibility if called elsewhere
         handleIntent(intent)
     }
 
@@ -149,14 +145,15 @@ class WaterRingActivity : AppCompatActivity() {
                 val today = WaterLog.getCurrentDate()
                 repository.ensureWaterLogExists(today)
 
+                val activeReminders = repository.getAllWaterRemindersOnce().filter { it.isActive }
+                val trueTargetMl = activeReminders.sumOf { it.amountMl }.coerceAtLeast(2000)
+
                 repository.getWaterLogForDate(today).collect { log ->
                     val actualLog = log ?: WaterLog(today, 0, 8)
                     
-                    // Assuming each glass is 250ml for stats display
-                    val currentMl = actualLog.count * 250 
-                    val targetMl = actualLog.goal * 250
-                    val remainingMl = (targetMl - currentMl).coerceAtLeast(0)
-                    val percent = if (targetMl > 0) ((currentMl * 100) / targetMl) else 0
+                    val currentMl = actualLog.totalMl
+                    val remainingMl = (trueTargetMl - currentMl).coerceAtLeast(0)
+                    val percent = if (trueTargetMl > 0) ((currentMl * 100) / trueTargetMl) else 0
 
                     withContext(Dispatchers.Main) {
                         binding.tvWaterStatRemaining.text = "${remainingMl}ml"
@@ -175,12 +172,11 @@ class WaterRingActivity : AppCompatActivity() {
         val today = WaterLog.getCurrentDate()
         lifecycleScope.launch(Dispatchers.IO) {
             repository.ensureWaterLogExists(today)
-            repository.incrementWaterCount(today)
+            repository.addWater(today, amountMl)
             if (reminderId != -1L) {
                 alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
             }
             
-            // Give UI a moment to update and user to see progress
             delay(800)
             withContext(Dispatchers.Main) {
                 stopAlarmAndFinish()

@@ -77,7 +77,6 @@ class WaterReminderFragment : Fragment() {
                         binding.switchReminders.isChecked = enabled
                         binding.chipGroupReminders.alpha = if (enabled) 1.0f else 0.5f
                         binding.btnAddReminder.isEnabled = enabled
-                        // Disable chips if reminders are off
                         for (i in 0 until binding.chipGroupReminders.childCount) {
                             binding.chipGroupReminders.getChildAt(i).isEnabled = enabled
                         }
@@ -152,20 +151,27 @@ class WaterReminderFragment : Fragment() {
     }
 
     private fun updateUi(count: Int, goal: Int) {
-        // Trigger celebration ONLY if we just reached the goal
-        val previousCountString = binding.tvWaterCount.text.toString()
-        val previousCount = previousCountString.toIntOrNull() ?: 0
-        
-        binding.tvWaterCount.text = count.toString()
-        binding.tvWaterGoal.text = "$goal glasses"
-        binding.progressWater.max = goal
-        binding.progressWater.progress = count
+        viewLifecycleOwner.lifecycleScope.launch {
+            val reminders = viewModel.reminders.value.filter { it.isActive }
+            val trueTargetMl = reminders.sumOf { it.amountMl }.coerceAtLeast(2000)
+            val log = viewModel.waterLog.value
+            val currentTotalMl = log?.totalMl ?: 0
 
-        if (count == goal && previousCount < goal) {
-            triggerCelebration()
-            Toast.makeText(requireContext(), "Goal reached! Amazing job!", Toast.LENGTH_SHORT).show()
-        } else if (count == goal && previousCount == goal) {
-            // Already reached, handled in ViewModel addWater to prevent over-counting
+            binding.tvWaterCount.text = count.toString()
+            binding.tvWaterMl.text = getString(R.string.water_ml_format, currentTotalMl, trueTargetMl)
+            binding.tvWaterGoal.text = getString(R.string.water_target_only_format, trueTargetMl)
+            
+            binding.progressWater.max = trueTargetMl
+            binding.progressWater.progress = currentTotalMl
+
+            val previousCountString = binding.tvWaterCount.tag?.toString() ?: "0"
+            val previousCount = previousCountString.toIntOrNull() ?: 0
+            binding.tvWaterCount.tag = count.toString()
+
+            if (count >= goal && previousCount < goal) {
+                triggerCelebration()
+                Toast.makeText(requireContext(), "Goal reached! Amazing job!", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

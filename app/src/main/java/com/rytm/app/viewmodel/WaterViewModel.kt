@@ -60,7 +60,7 @@ class WaterViewModel @Inject constructor(
 
     fun addWater() {
         viewModelScope.launch {
-            repository.incrementWaterCount(WaterLog.getCurrentDate())
+            repository.addWater(WaterLog.getCurrentDate(), 250) // Default 250ml for quick add
         }
     }
 
