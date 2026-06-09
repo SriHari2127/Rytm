@@ -1,0 +1,814 @@
+{
+  "habits": [
+    {
+      "id": 1,
+      "name": "Morning Exercise",
+      "description": "15 mins of stretching and cardio",
+      "iconEmoji": "💪",
+      "colorHex": "#4CAF50",
+      "isActive": true,
+      "repeatDays": "1,2,3,4,5,6,7",
+      "createdAt": 1779288552022
+    },
+    {
+      "id": 2,
+      "name": "Deep Work",
+      "description": "Focused coding or study session",
+      "iconEmoji": "🧠",
+      "colorHex": "#2196F3",
+      "isActive": true,
+      "repeatDays": "1,2,3,4,5",
+      "createdAt": 1779288552022
+    },
+    {
+      "id": 3,
+      "name": "Evening Meditation",
+      "description": "Mindfulness for better sleep",
+      "iconEmoji": "🧘",
+      "colorHex": "#9C27B0",
+      "isActive": true,
+      "repeatDays": "1,2,3,4,5,6,7",
+      "createdAt": 1779288552022
+    }
+  ],
+  "reminders": [
+    {
+      "id": 1,
+      "habitId": 1,
+      "hour": 7,
+      "minute": 30,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 2,
+      "habitId": 2,
+      "hour": 10,
+      "minute": 0,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 3,
+      "habitId": 3,
+      "hour": 21,
+      "minute": 30,
+      "isActive": true,
+      "lastScheduledAt": 0
+    }
+  ],
+  "completionLogs": [
+    {
+      "id": 1,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780106400000,
+      "completedAt": 1780106700000
+    },
+    {
+      "id": 2,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780156800000,
+      "completedAt": 1780157100000
+    },
+    {
+      "id": 3,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780192800000,
+      "completedAt": 1780193100000
+    },
+    {
+      "id": 4,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "MISSED",
+      "scheduledAt": 1780243200000,
+      "completedAt": 1780243200000
+    },
+    {
+      "id": 5,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780279200000,
+      "completedAt": 1780279500000
+    },
+    {
+      "id": 6,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780288200000,
+      "completedAt": 1780288500000
+    },
+    {
+      "id": 7,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780329600000,
+      "completedAt": 1780329900000
+    },
+    {
+      "id": 8,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780365600000,
+      "completedAt": 1780365900000
+    },
+    {
+      "id": 9,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "MISSED",
+      "scheduledAt": 1780374600000,
+      "completedAt": 1780374600000
+    },
+    {
+      "id": 10,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "MISSED",
+      "scheduledAt": 1780416000000,
+      "completedAt": 1780416000000
+    },
+    {
+      "id": 11,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780452000000,
+      "completedAt": 1780452300000
+    },
+    {
+      "id": 12,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780461000000,
+      "completedAt": 1780461300000
+    },
+    {
+      "id": 13,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780502400000,
+      "completedAt": 1780502700000
+    },
+    {
+      "id": 14,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780538400000,
+      "completedAt": 1780538700000
+    },
+    {
+      "id": 15,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780547400000,
+      "completedAt": 1780547700000
+    },
+    {
+      "id": 16,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "MISSED",
+      "scheduledAt": 1780588800000,
+      "completedAt": 1780588800000
+    },
+    {
+      "id": 17,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780624800000,
+      "completedAt": 1780625100000
+    },
+    {
+      "id": 18,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780633800000,
+      "completedAt": 1780634100000
+    },
+    {
+      "id": 19,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780675200000,
+      "completedAt": 1780675500000
+    },
+    {
+      "id": 20,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "MISSED",
+      "scheduledAt": 1780711200000,
+      "completedAt": 1780711200000
+    },
+    {
+      "id": 21,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "MISSED",
+      "scheduledAt": 1780761600000,
+      "completedAt": 1780761600000
+    },
+    {
+      "id": 22,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780797600000,
+      "completedAt": 1780797900000
+    },
+    {
+      "id": 23,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780848000000,
+      "completedAt": 1780848300000
+    },
+    {
+      "id": 24,
+      "habitId": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780884000000,
+      "completedAt": 1780884300000
+    },
+    {
+      "id": 25,
+      "habitId": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780893000000,
+      "completedAt": 1780893300000
+    },
+    {
+      "id": 26,
+      "habitId": 3,
+      "reminderId": 3,
+      "status": "MISSED",
+      "scheduledAt": 1780934400000,
+      "completedAt": 1780934400000
+    }
+  ],
+  "waterReminders": [
+    {
+      "id": 1,
+      "hour": 9,
+      "minute": 0,
+      "amountMl": 250,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 2,
+      "hour": 11,
+      "minute": 30,
+      "amountMl": 500,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 3,
+      "hour": 14,
+      "minute": 0,
+      "amountMl": 250,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 4,
+      "hour": 16,
+      "minute": 30,
+      "amountMl": 500,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 5,
+      "hour": 19,
+      "minute": 0,
+      "amountMl": 250,
+      "isActive": true,
+      "lastScheduledAt": 0
+    },
+    {
+      "id": 6,
+      "hour": 21,
+      "minute": 0,
+      "amountMl": 250,
+      "isActive": true,
+      "lastScheduledAt": 0
+    }
+  ],
+  "waterLogs": [
+    {
+      "date": "2026-05-30",
+      "count": 3,
+      "goal": 2000,
+      "totalMl": 1000
+    },
+    {
+      "date": "2026-05-31",
+      "count": 3,
+      "goal": 2000,
+      "totalMl": 1000
+    },
+    {
+      "date": "2026-06-01",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    },
+    {
+      "date": "2026-06-02",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    },
+    {
+      "date": "2026-06-03",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    },
+    {
+      "date": "2026-06-04",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    },
+    {
+      "date": "2026-06-05",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    },
+    {
+      "date": "2026-06-06",
+      "count": 3,
+      "goal": 2000,
+      "totalMl": 1000
+    },
+    {
+      "date": "2026-06-07",
+      "count": 3,
+      "goal": 2000,
+      "totalMl": 1000
+    },
+    {
+      "date": "2026-06-08",
+      "count": 6,
+      "goal": 2000,
+      "totalMl": 2000
+    }
+  ],
+  "waterReminderLogs": [
+    {
+      "id": 1,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780111800000,
+      "timestamp": 1780112400000
+    },
+    {
+      "id": 2,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780120800000,
+      "timestamp": 1780121400000
+    },
+    {
+      "id": 3,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780129800000,
+      "timestamp": 1780130400000
+    },
+    {
+      "id": 4,
+      "reminderId": 4,
+      "status": "MISSED",
+      "scheduledAt": 1780138800000,
+      "timestamp": 1780139400000
+    },
+    {
+      "id": 5,
+      "reminderId": 5,
+      "status": "MISSED",
+      "scheduledAt": 1780147800000,
+      "timestamp": 1780148400000
+    },
+    {
+      "id": 6,
+      "reminderId": 6,
+      "status": "MISSED",
+      "scheduledAt": 1780155000000,
+      "timestamp": 1780155600000
+    },
+    {
+      "id": 7,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780198200000,
+      "timestamp": 1780198800000
+    },
+    {
+      "id": 8,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780207200000,
+      "timestamp": 1780207800000
+    },
+    {
+      "id": 9,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780216200000,
+      "timestamp": 1780216800000
+    },
+    {
+      "id": 10,
+      "reminderId": 4,
+      "status": "MISSED",
+      "scheduledAt": 1780225200000,
+      "timestamp": 1780225800000
+    },
+    {
+      "id": 11,
+      "reminderId": 5,
+      "status": "MISSED",
+      "scheduledAt": 1780234200000,
+      "timestamp": 1780234800000
+    },
+    {
+      "id": 12,
+      "reminderId": 6,
+      "status": "MISSED",
+      "scheduledAt": 1780241400000,
+      "timestamp": 1780242000000
+    },
+    {
+      "id": 13,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780284600000,
+      "timestamp": 1780285200000
+    },
+    {
+      "id": 14,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780293600000,
+      "timestamp": 1780294200000
+    },
+    {
+      "id": 15,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780302600000,
+      "timestamp": 1780303200000
+    },
+    {
+      "id": 16,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780311600000,
+      "timestamp": 1780312200000
+    },
+    {
+      "id": 17,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780320600000,
+      "timestamp": 1780321200000
+    },
+    {
+      "id": 18,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780327800000,
+      "timestamp": 1780328400000
+    },
+    {
+      "id": 19,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780371000000,
+      "timestamp": 1780371600000
+    },
+    {
+      "id": 20,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780380000000,
+      "timestamp": 1780380600000
+    },
+    {
+      "id": 21,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780389000000,
+      "timestamp": 1780389600000
+    },
+    {
+      "id": 22,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780398000000,
+      "timestamp": 1780398600000
+    },
+    {
+      "id": 23,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780407000000,
+      "timestamp": 1780407600000
+    },
+    {
+      "id": 24,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780414200000,
+      "timestamp": 1780414800000
+    },
+    {
+      "id": 25,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780457400000,
+      "timestamp": 1780458000000
+    },
+    {
+      "id": 26,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780466400000,
+      "timestamp": 1780467000000
+    },
+    {
+      "id": 27,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780475400000,
+      "timestamp": 1780476000000
+    },
+    {
+      "id": 28,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780484400000,
+      "timestamp": 1780485000000
+    },
+    {
+      "id": 29,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780493400000,
+      "timestamp": 1780494000000
+    },
+    {
+      "id": 30,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780500600000,
+      "timestamp": 1780501200000
+    },
+    {
+      "id": 31,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780543800000,
+      "timestamp": 1780544400000
+    },
+    {
+      "id": 32,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780552800000,
+      "timestamp": 1780553400000
+    },
+    {
+      "id": 33,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780561800000,
+      "timestamp": 1780562400000
+    },
+    {
+      "id": 34,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780570800000,
+      "timestamp": 1780571400000
+    },
+    {
+      "id": 35,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780579800000,
+      "timestamp": 1780580400000
+    },
+    {
+      "id": 36,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780587000000,
+      "timestamp": 1780587600000
+    },
+    {
+      "id": 37,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780630200000,
+      "timestamp": 1780630800000
+    },
+    {
+      "id": 38,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780639200000,
+      "timestamp": 1780639800000
+    },
+    {
+      "id": 39,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780648200000,
+      "timestamp": 1780648800000
+    },
+    {
+      "id": 40,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780657200000,
+      "timestamp": 1780657800000
+    },
+    {
+      "id": 41,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780666200000,
+      "timestamp": 1780666800000
+    },
+    {
+      "id": 42,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780673400000,
+      "timestamp": 1780674000000
+    },
+    {
+      "id": 43,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780716600000,
+      "timestamp": 1780717200000
+    },
+    {
+      "id": 44,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780725600000,
+      "timestamp": 1780726200000
+    },
+    {
+      "id": 45,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780734600000,
+      "timestamp": 1780735200000
+    },
+    {
+      "id": 46,
+      "reminderId": 4,
+      "status": "MISSED",
+      "scheduledAt": 1780743600000,
+      "timestamp": 1780744200000
+    },
+    {
+      "id": 47,
+      "reminderId": 5,
+      "status": "MISSED",
+      "scheduledAt": 1780752600000,
+      "timestamp": 1780753200000
+    },
+    {
+      "id": 48,
+      "reminderId": 6,
+      "status": "MISSED",
+      "scheduledAt": 1780759800000,
+      "timestamp": 1780760400000
+    },
+    {
+      "id": 49,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780803000000,
+      "timestamp": 1780803600000
+    },
+    {
+      "id": 50,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780812000000,
+      "timestamp": 1780812600000
+    },
+    {
+      "id": 51,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780821000000,
+      "timestamp": 1780821600000
+    },
+    {
+      "id": 52,
+      "reminderId": 4,
+      "status": "MISSED",
+      "scheduledAt": 1780830000000,
+      "timestamp": 1780830600000
+    },
+    {
+      "id": 53,
+      "reminderId": 5,
+      "status": "MISSED",
+      "scheduledAt": 1780839000000,
+      "timestamp": 1780839600000
+    },
+    {
+      "id": 54,
+      "reminderId": 6,
+      "status": "MISSED",
+      "scheduledAt": 1780846200000,
+      "timestamp": 1780846800000
+    },
+    {
+      "id": 55,
+      "reminderId": 1,
+      "status": "COMPLETED",
+      "scheduledAt": 1780889400000,
+      "timestamp": 1780890000000
+    },
+    {
+      "id": 56,
+      "reminderId": 2,
+      "status": "COMPLETED",
+      "scheduledAt": 1780898400000,
+      "timestamp": 1780899000000
+    },
+    {
+      "id": 57,
+      "reminderId": 3,
+      "status": "COMPLETED",
+      "scheduledAt": 1780907400000,
+      "timestamp": 1780908000000
+    },
+    {
+      "id": 58,
+      "reminderId": 4,
+      "status": "COMPLETED",
+      "scheduledAt": 1780916400000,
+      "timestamp": 1780917000000
+    },
+    {
+      "id": 59,
+      "reminderId": 5,
+      "status": "COMPLETED",
+      "scheduledAt": 1780925400000,
+      "timestamp": 1780926000000
+    },
+    {
+      "id": 60,
+      "reminderId": 6,
+      "status": "COMPLETED",
+      "scheduledAt": 1780932600000,
+      "timestamp": 1780933200000
+    }
+  ],
+  "settings": [
+    {
+      "key": "water_reminders_enabled",
+      "value": "true"
+    },
+    {
+      "key": "donot_show_overlay_dialog",
+      "value": "true"
+    }
+  ]
+}
