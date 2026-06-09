@@ -12,6 +12,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.rytm.app.R
+import com.rytm.app.data.entity.CompletionStatus
 import com.rytm.app.data.entity.WaterLog
 import com.rytm.app.databinding.ActivityWaterRingBinding
 import com.rytm.app.repository.HabitRepository
@@ -19,7 +20,6 @@ import com.rytm.app.service.AlarmService
 import com.rytm.app.utils.AlarmScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,6 +32,8 @@ class WaterRingActivity : AppCompatActivity() {
 
     private var reminderId: Long = -1L
     private var amountMl: Int = 250
+    private var scheduledTime: Long = 0L
+    private var isProcessing = false
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val timeoutRunnable = Runnable { stopAlarmAndFinish() }
 
@@ -73,6 +75,7 @@ class WaterRingActivity : AppCompatActivity() {
         intent?.let {
             reminderId = it.getLongExtra(AlarmScheduler.EXTRA_REMINDER_ID, -1L)
             amountMl = it.getIntExtra(AlarmScheduler.EXTRA_WATER_AMOUNT, 250)
+            scheduledTime = it.getLongExtra(AlarmScheduler.EXTRA_SCHEDULED_TIME, 0L)
         }
     }
 
@@ -94,12 +97,8 @@ class WaterRingActivity : AppCompatActivity() {
         }
     }
 
-    private fun extractIntentData() {
-        handleIntent(intent)
-    }
-
     private fun setupUI() {
-        binding.tvWaterAmountSub.text = "Goal: Drink $amountMl ml"
+        binding.tvWaterAmountSub.text = getString(R.string.water_goal_format, amountMl)
 
         binding.btnCompleteCard.setOnClickListener {
             animatePress(it) { logWaterAndFinish() }
@@ -169,11 +168,16 @@ class WaterRingActivity : AppCompatActivity() {
     }
 
     private fun logWaterAndFinish() {
+        if (isProcessing) return
+        isProcessing = true
+        binding.btnCompleteCard.isEnabled = false
+
         val today = WaterLog.getCurrentDate()
         lifecycleScope.launch(Dispatchers.IO) {
             repository.ensureWaterLogExists(today)
             repository.addWater(today, amountMl)
             if (reminderId != -1L) {
+                repository.logWaterReminderCompletion(reminderId, CompletionStatus.COMPLETED, scheduledTime)
                 alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
             }
             

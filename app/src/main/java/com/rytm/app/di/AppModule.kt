@@ -21,7 +21,7 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "rytm_database"
+            "rytm_database",
         ).fallbackToDestructiveMigration().build()
     }
 
@@ -42,5 +42,8 @@ object AppModule {
 
     @Provides
     fun provideAppSettingsDao(db: AppDatabase): AppSettingsDao = db.appSettingsDao()
+
+    @Provides
+    fun provideWaterReminderLogDao(db: AppDatabase): WaterReminderLogDao = db.waterReminderLogDao()
 }
 

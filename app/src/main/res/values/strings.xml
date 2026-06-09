@@ -3,5 +3,6 @@
     <string name="app_name">Rytm</string>
     <string name="water_ml_format">%1$dml / %2$dml</string>
     <string name="water_target_only_format">%1$dml</string>
+    <string name="water_goal_format">Goal: Drink %1$d ml</string>
     <string name="default_water_ml">0ml</string>
 </resources>

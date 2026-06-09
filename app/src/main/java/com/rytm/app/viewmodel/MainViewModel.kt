@@ -13,10 +13,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: HabitRepository,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
 
-    private val _doNotShowOverlay = MutableStateFlow(false)
+    private val _doNotShowOverlay = MutableStateFlow(value = false)
     val doNotShowOverlay: StateFlow<Boolean> = _doNotShowOverlay
 
     init {
@@ -35,6 +35,17 @@ class MainViewModel @Inject constructor(
     fun rescheduleAlarmsIfNeeded() {
         viewModelScope.launch {
             alarmScheduler.rescheduleAllAlarms(repository)
+            
+            // Audit on manual launch too
+            val missed = repository.getMissedHabits()
+            if (missed.isNotEmpty()) {
+                alarmScheduler.postMissedRoutineNotification(missed)
+            }
+            
+            val missedWater = repository.getMissedWaterReminders()
+            if (missedWater.isNotEmpty()) {
+                alarmScheduler.postMissedWaterSummaryNotification(missedWater)
+            }
         }
     }
 

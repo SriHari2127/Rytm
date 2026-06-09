@@ -7,6 +7,7 @@ import com.rytm.app.data.dao.HabitDao
 import com.rytm.app.data.dao.ReminderDao
 import com.rytm.app.data.dao.WaterLogDao
 import com.rytm.app.data.dao.WaterReminderDao
+import com.rytm.app.data.dao.WaterReminderLogDao
 import com.rytm.app.data.entity.*
 
 class Converters {
@@ -18,9 +19,9 @@ class Converters {
 }
 
 @Database(
-    entities = [Habit::class, Reminder::class, CompletionLog::class, WaterReminder::class, WaterLog::class, AppSettings::class],
-    version = 5,
-    exportSchema = true
+    entities = [Habit::class, Reminder::class, CompletionLog::class, WaterReminder::class, WaterLog::class, AppSettings::class, WaterReminderLog::class],
+    version = 6,
+    exportSchema = true,
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun waterReminderDao(): WaterReminderDao
     abstract fun waterLogDao(): WaterLogDao
     abstract fun appSettingsDao(): AppSettingsDao
+    abstract fun waterReminderLogDao(): WaterReminderLogDao
 
     @Transaction
     suspend fun restoreFromBackup(backup: AppBackup) {
@@ -40,6 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
         completionLogDao().insertLogs(backup.completionLogs)
         waterReminderDao().insertReminders(backup.waterReminders)
         waterLogDao().insertLogs(backup.waterLogs)
+        waterReminderLogDao().insertLogs(backup.waterReminderLogs)
         appSettingsDao().insertSettings(backup.settings)
     }
 }

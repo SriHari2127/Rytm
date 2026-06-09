@@ -7,27 +7,34 @@ import com.rytm.app.data.entity.WaterReminder
 import com.rytm.app.repository.HabitRepository
 import com.rytm.app.utils.AlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class WaterViewModel @Inject constructor(
     private val repository: HabitRepository,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
 
+    private val _events = MutableSharedFlow<String>()
+    val events: SharedFlow<String> = _events.asSharedFlow()
+
     val waterLog: StateFlow<WaterLog?> = repository.getWaterLogForDate(WaterLog.getCurrentDate())
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = null
+        )
 
     val reminders: StateFlow<List<WaterReminder>> = repository.getAllWaterReminders()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
 
-    private val _waterRemindersEnabled = MutableStateFlow(true)
+    private val _waterRemindersEnabled = MutableStateFlow(value = true)
     val waterRemindersEnabled = _waterRemindersEnabled.asStateFlow()
 
     init {
@@ -60,7 +67,10 @@ class WaterViewModel @Inject constructor(
 
     fun addWater() {
         viewModelScope.launch {
-            repository.addWater(WaterLog.getCurrentDate(), 250) // Default 250ml for quick add
+            val success = repository.addWaterWithLimit(WaterLog.getCurrentDate(), 250) // Default 250ml for quick add
+            if (!success) {
+                _events.emit("Hydration target already reached!")
+            }
         }
     }
 

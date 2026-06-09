@@ -72,7 +72,7 @@ class AlarmScheduler @Inject constructor(
             putExtra(EXTRA_TYPE, TYPE_WATER)
             putExtra(EXTRA_REMINDER_ID, reminder.id)
             putExtra(EXTRA_HABIT_NAME, "Water Intake")
-            putExtra(EXTRA_HABIT_EMOJI, "💧")
+            putExtra(EXTRA_HABIT_EMOJI, "")
             putExtra(EXTRA_WATER_AMOUNT, reminder.amountMl)
             putExtra(EXTRA_SCHEDULED_TIME, triggerTime)
         }
@@ -175,7 +175,7 @@ class AlarmScheduler @Inject constructor(
     }
 
     fun postMissedWaterNotification(reminder: WaterReminder) {
-        val title = "💧 Missed Water Reminder"
+        val title = "Missed Water Reminder"
         val message = "You missed your ${reminder.toDisplayTime()} reminder to drink ${reminder.amountMl}ml of water."
 
         val intent = Intent(context, MainActivity::class.java)
@@ -194,6 +194,35 @@ class AlarmScheduler @Inject constructor(
             .build()
 
         notificationManager.notify(reminder.id.toInt() + WATER_ID_OFFSET + 100, notification)
+    }
+
+    fun postMissedWaterSummaryNotification(missed: List<WaterReminder>) {
+        if (missed.isEmpty()) return
+        if (missed.size == 1) {
+            postMissedWaterNotification(missed[0])
+            return
+        }
+
+        val totalMl = missed.sumOf { it.amountMl }
+        val title = "Missed Water Reminders"
+        val message = "You missed ${missed.size} reminders (${totalMl}ml total). Stay hydrated and drink up now!"
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pi = PendingIntent.getActivity(
+            context, MISSED_WATER_SUMMARY_ID, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, WATER_NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setContentIntent(pi)
+            .build()
+
+        notificationManager.notify(MISSED_WATER_SUMMARY_ID, notification)
     }
 
     fun postMissedHabitNotification(habitName: String, reminderId: Long) {
@@ -275,5 +304,6 @@ class AlarmScheduler @Inject constructor(
         const val NOTIFICATION_CHANNEL_ID = "rytm_habit_alarms"
         const val WATER_NOTIFICATION_CHANNEL_ID = "rytm_water_reminders"
         private const val MISSED_NOTIF_ID = 9999
+        private const val MISSED_WATER_SUMMARY_ID = 9998
     }
 }

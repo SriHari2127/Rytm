@@ -279,6 +279,7 @@ class AlarmService : Service() {
                     val reminder = repository.getWaterReminderById(reminderId)
                     if (reminder != null) {
                         alarmScheduler.postMissedWaterNotification(reminder)
+                        repository.logWaterReminderCompletion(reminderId, CompletionStatus.MISSED, scheduledTime)
                     }
                     alarmScheduler.rescheduleWaterForNextDay(repository, reminderId)
                 } else {

@@ -22,6 +22,7 @@ import com.rytm.app.viewmodel.WaterViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import nl.dionsegijn.konfetti.core.Party
 import nl.dionsegijn.konfetti.core.Position
@@ -49,7 +50,6 @@ class WaterReminderFragment : Fragment() {
         binding.btnChangeGoal.setOnClickListener { showSetGoalDialog() }
         binding.btnAddWater.setOnClickListener { 
             viewModel.addWater() 
-            Toast.makeText(requireContext(), "Water logged!", Toast.LENGTH_SHORT).show()
         }
         binding.btnAddReminder.setOnClickListener { showTimePicker() }
         binding.switchReminders.setOnCheckedChangeListener { _, isChecked ->
@@ -73,13 +73,18 @@ class WaterReminderFragment : Fragment() {
                     }
                 }
                 launch {
-                    viewModel.waterRemindersEnabled.collect { enabled ->
+                    viewModel.waterRemindersEnabled.collect { enabled: Boolean ->
                         binding.switchReminders.isChecked = enabled
                         binding.chipGroupReminders.alpha = if (enabled) 1.0f else 0.5f
                         binding.btnAddReminder.isEnabled = enabled
                         for (i in 0 until binding.chipGroupReminders.childCount) {
                             binding.chipGroupReminders.getChildAt(i).isEnabled = enabled
                         }
+                    }
+                }
+                launch {
+                    viewModel.events.collectLatest { event ->
+                        Toast.makeText(requireContext(), event, Toast.LENGTH_SHORT).show()
                     }
                 }
             }

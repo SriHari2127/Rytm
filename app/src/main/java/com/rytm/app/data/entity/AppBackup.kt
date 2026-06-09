@@ -6,5 +6,6 @@ data class AppBackup(
     val completionLogs: List<CompletionLog>,
     val waterReminders: List<WaterReminder>,
     val waterLogs: List<WaterLog>,
+    val waterReminderLogs: List<WaterReminderLog>,
     val settings: List<AppSettings>
 )
