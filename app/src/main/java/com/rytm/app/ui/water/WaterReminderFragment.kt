@@ -169,11 +169,11 @@ class WaterReminderFragment : Fragment() {
             binding.progressWater.max = trueTargetMl
             binding.progressWater.progress = currentTotalMl
 
-            val previousCountString = binding.tvWaterCount.tag?.toString() ?: "0"
-            val previousCount = previousCountString.toIntOrNull() ?: 0
-            binding.tvWaterCount.tag = count.toString()
+            val previousMlString = binding.tvWaterMl.tag?.toString() ?: "0"
+            val previousTotalMl = previousMlString.toIntOrNull() ?: 0
+            binding.tvWaterMl.tag = currentTotalMl.toString()
 
-            if (count >= goal && previousCount < goal) {
+            if (currentTotalMl >= trueTargetMl && previousTotalMl < trueTargetMl) {
                 triggerCelebration()
                 Toast.makeText(requireContext(), "Goal reached! Amazing job!", Toast.LENGTH_SHORT).show()
             }

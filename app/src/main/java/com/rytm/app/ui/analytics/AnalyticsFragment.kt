@@ -159,6 +159,14 @@ class AnalyticsFragment : Fragment() {
             legend.isEnabled = false
             description.isEnabled = false
             setFitBars(true)
+            
+            // Disable zoom and interaction
+            setScaleEnabled(false)
+            setPinchZoom(false)
+            isDoubleTapToZoomEnabled = false
+            isHighlightPerTapEnabled = false
+            isHighlightPerDragEnabled = false
+
             animateY(600)
             invalidate()
         }
