@@ -8,6 +8,7 @@
 - **Deterministic Scheduling**: Reminders are calculated based on local "wall-clock" time, ensuring consistency across system reboots.
 - **Dynamic UX**: Real-time list sorting by priority/time and completion status (completed habits move to the bottom with a strike-through).
 - **Manual Recovery**: Supports "back-filling" habit completions for routines missed while the device was off.
+- **Intentional Friction Design**: Habit reminders can be completed or postponed, but not skipped directly. This design choice was made to encourage conscious decision-making rather than automatic avoidance.
 - **Universal Time Audit**: Audits history on app launch and system reboot, alerting users of missed routines (Habits & Water) that occurred while the device was inactive.
 
 ### Hydration Tracker
@@ -29,8 +30,8 @@ The project implements **Clean Architecture** principles with a focus on the **M
 - **ViewModel**: State management using `StateFlow` and `SharedFlow` (for one-time events like target alerts).
 - **Repository**: Acts as the single source of truth, abstracting Room DAOs and providing unified data streams.
 - **Data (Local)**: 
-    - **Room Database**: Relational storage for habits, reminders, logs, settings, and water logs.
-    - **No SharedPreferences**: All local flags are stored in a structured `AppSettings` entity in Room for better maintainability and transactional safety.
+- **Room Database**: Relational storage for habits, reminders, logs, settings, and water logs.
+- **No SharedPreferences**: All local flags are stored in a structured `AppSettings` entity in Room for better maintainability and transactional safety.
 
 ## Tech Stack
 
@@ -49,6 +50,8 @@ The project implements **Clean Architecture** principles with a focus on the **M
 - **UI Race Conditions (Double-Logging)**: Fixed a critical issue where rapid taps on the "Done" button in the alarm screen would log multiple glasses of water. Implemented a "processing lock" and immediate button disabling to ensure data integrity.
 - **Hydration Over-Logging**: Developed a validation layer in the repository to prevent logging water beyond the daily target, providing user feedback via a reactive event bus (`SharedFlow`).
 - **Timezone/DST Drift**: Developed a `TimeChangeReceiver` that listens for `ACTION_TIMEZONE_CHANGED`, instantly recalculating UTC trigger times to keep reminders synced globally.
+- **Redundant Notification Suppression**: Optimized the audit engine to automatically log missed events upon detection, preventing duplicate alerts on subsequent app launches.
+- **Data Import Resilience**: Hardened the JSON restoration logic to handle schema evolution, ensuring backups from older versions of the app remain compatible with new features (like Water Logs).
 - **Data Integrity**: Hardened the database layer with `@Transaction` annotations in DAOs, ensuring multi-step updates are atomic and corruption-proof.
 
 ## Installation
