@@ -131,8 +131,9 @@ class HabitRepository @Inject constructor(
     suspend fun ensureWaterLogExists(date: String) {
         val existing = waterLogDao.getLogForDateOnce(date)
         if (existing == null) {
-            val lastGoal = waterLogDao.getLastGoal() ?: 8
-            waterLogDao.insertIfMissing(WaterLog(date = date, goal = lastGoal, count = 0))
+            val reminders = waterReminderDao.getAllActiveReminders()
+            val dynamicTargetMl = reminders.sumOf { it.amountMl }.coerceAtLeast(2000)
+            waterLogDao.insertIfMissing(WaterLog(date = date, goal = dynamicTargetMl, count = 0))
         }
     }
 
@@ -194,6 +195,16 @@ class HabitRepository @Inject constructor(
                     }
                     
                     if (!wasHandled) {
+                        // Automatically log as missed so we don't notify again on next launch
+                        logCompletion(
+                            CompletionLog(
+                                habitId = hwr.habit.id,
+                                reminderId = reminder.id,
+                                status = CompletionStatus.MISSED,
+                                scheduledAt = scheduledTime,
+                                completedAt = now
+                            )
+                        )
                         missed.add(hwr)
                         break // Found one missed reminder for this habit today
                     }
@@ -222,6 +233,12 @@ class HabitRepository @Inject constructor(
             if (scheduledTime < now) {
                 val log = waterReminderLogDao.getLogForReminderAt(reminder.id, scheduledTime)
                 if (log == null) {
+                    // Automatically log as missed so we don't notify again on next launch
+                    logWaterReminderCompletion(
+                        reminder.id,
+                        CompletionStatus.MISSED,
+                        scheduledTime
+                    )
                     missed.add(reminder)
                 }
             }

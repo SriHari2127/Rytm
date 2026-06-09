@@ -37,13 +37,13 @@ abstract class AppDatabase : RoomDatabase() {
     suspend fun restoreFromBackup(backup: AppBackup) {
         clearAllTables() // Native Room method to safely wipe everything
         
-        habitDao().insertHabits(backup.habits)
-        reminderDao().insertReminders(backup.reminders)
-        completionLogDao().insertLogs(backup.completionLogs)
-        waterReminderDao().insertReminders(backup.waterReminders)
-        waterLogDao().insertLogs(backup.waterLogs)
-        waterReminderLogDao().insertLogs(backup.waterReminderLogs)
-        appSettingsDao().insertSettings(backup.settings)
+        habitDao().insertHabits(backup.habits ?: emptyList())
+        reminderDao().insertReminders(backup.reminders ?: emptyList())
+        completionLogDao().insertLogs(backup.completionLogs ?: emptyList())
+        waterReminderDao().insertReminders(backup.waterReminders ?: emptyList())
+        waterLogDao().insertLogs(backup.waterLogs ?: emptyList())
+        waterReminderLogDao().insertLogs(backup.waterReminderLogs ?: emptyList())
+        appSettingsDao().insertSettings(backup.settings ?: emptyList())
     }
 }
 

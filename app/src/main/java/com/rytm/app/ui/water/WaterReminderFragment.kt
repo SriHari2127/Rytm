@@ -194,7 +194,7 @@ class WaterReminderFragment : Fragment() {
     }
 
     private fun showSetGoalDialog() {
-        val currentGoal = viewModel.waterLog.value?.goal ?: 8
+        val currentGoal = viewModel.waterLog.value?.goal ?: 2000
         val input = EditText(requireContext()).apply {
             inputType = InputType.TYPE_CLASS_NUMBER
             setText(currentGoal.toString())
@@ -215,13 +215,13 @@ class WaterReminderFragment : Fragment() {
         }
 
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Set Daily Goal")
-            .setMessage("How many glasses of water do you want to drink today?")
+            .setTitle("Set Daily Hydration Target")
+            .setMessage("Enter your target in milliliters (ml):")
             .setView(container)
             .setPositiveButton("Set") { _, _ ->
                 val newGoal = input.text.toString().toIntOrNull() ?: currentGoal
                 viewModel.setGoal(newGoal)
-                Toast.makeText(requireContext(), "Daily goal updated to $newGoal glasses", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Daily target updated to ${newGoal}ml", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Cancel", null)
             .show()
