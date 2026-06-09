@@ -6,9 +6,10 @@
       "description": "15 mins of stretching and cardio",
       "iconEmoji": "💪",
       "colorHex": "#4CAF50",
+      "alarmSoundUri": "",
       "isActive": true,
       "repeatDays": "1,2,3,4,5,6,7",
-      "createdAt": 1779289109648
+      "createdAt": 1779291961639
     },
     {
       "id": 2,
@@ -16,9 +17,10 @@
       "description": "Focused coding or study session",
       "iconEmoji": "🧠",
       "colorHex": "#2196F3",
+      "alarmSoundUri": "",
       "isActive": true,
       "repeatDays": "1,2,3,4,5",
-      "createdAt": 1779289109648
+      "createdAt": 1779291961639
     },
     {
       "id": 3,
@@ -26,9 +28,10 @@
       "description": "Mindfulness for better sleep",
       "iconEmoji": "🧘",
       "colorHex": "#9C27B0",
+      "alarmSoundUri": "",
       "isActive": true,
       "repeatDays": "1,2,3,4,5,6,7",
-      "createdAt": 1779289109648
+      "createdAt": 1779291961639
     }
   ],
   "reminders": [
@@ -88,7 +91,7 @@
       "reminderId": 3,
       "status": "MISSED",
       "scheduledAt": 1780243200000,
-      "completedAt": 1780243200000
+      "completedAt": 1780243500000
     },
     {
       "id": 5,
@@ -128,7 +131,7 @@
       "reminderId": 2,
       "status": "MISSED",
       "scheduledAt": 1780374600000,
-      "completedAt": 1780374600000
+      "completedAt": 1780374900000
     },
     {
       "id": 10,
@@ -136,7 +139,7 @@
       "reminderId": 3,
       "status": "MISSED",
       "scheduledAt": 1780416000000,
-      "completedAt": 1780416000000
+      "completedAt": 1780416300000
     },
     {
       "id": 11,
@@ -184,7 +187,7 @@
       "reminderId": 3,
       "status": "MISSED",
       "scheduledAt": 1780588800000,
-      "completedAt": 1780588800000
+      "completedAt": 1780589100000
     },
     {
       "id": 17,
@@ -216,7 +219,7 @@
       "reminderId": 1,
       "status": "MISSED",
       "scheduledAt": 1780711200000,
-      "completedAt": 1780711200000
+      "completedAt": 1780711500000
     },
     {
       "id": 21,
@@ -224,7 +227,7 @@
       "reminderId": 3,
       "status": "MISSED",
       "scheduledAt": 1780761600000,
-      "completedAt": 1780761600000
+      "completedAt": 1780761900000
     },
     {
       "id": 22,
@@ -264,7 +267,7 @@
       "reminderId": 3,
       "status": "MISSED",
       "scheduledAt": 1780934400000,
-      "completedAt": 1780934400000
+      "completedAt": 1780934700000
     }
   ],
   "waterReminders": [
